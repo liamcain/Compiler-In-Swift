@@ -12,6 +12,12 @@ import Cocoa
 class AppDelegate: NSObject, NSApplicationDelegate {
 
     @IBOutlet weak var window: NSWindow!
+    @IBOutlet weak var inputTextfield: NSTextField!
+    @IBOutlet weak var outputTextfield: NSTextField!
+    @IBOutlet weak var compileButton: NSButton!
+    @IBAction func compilePressed(sender: NSButton) {
+        outputTextfield.stringValue = inputTextfield.stringValue;
+    }
 
 
     func applicationDidFinishLaunching(aNotification: NSNotification) {
@@ -21,7 +27,5 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(aNotification: NSNotification) {
         // Insert code here to tear down your application
     }
-
-
 }
 

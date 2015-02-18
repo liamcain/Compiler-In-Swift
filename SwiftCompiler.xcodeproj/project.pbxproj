@@ -11,6 +11,8 @@
 		0C2515D81A7AA65000A78055 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0C2515D71A7AA65000A78055 /* Images.xcassets */; };
 		0C2515DB1A7AA65000A78055 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0C2515D91A7AA65000A78055 /* MainMenu.xib */; };
 		0C2515E71A7AA65000A78055 /* SwiftCompilerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2515E61A7AA65000A78055 /* SwiftCompilerTests.swift */; };
+		0C4BB6B91A95104800FCEC1F /* Lexer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4BB6B81A95104800FCEC1F /* Lexer.swift */; };
+		0C4BB6BD1A951F3000FCEC1F /* SwiftRegex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4BB6BC1A951F3000FCEC1F /* SwiftRegex.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -32,6 +34,8 @@
 		0C2515E01A7AA65000A78055 /* SwiftCompilerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftCompilerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0C2515E51A7AA65000A78055 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0C2515E61A7AA65000A78055 /* SwiftCompilerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftCompilerTests.swift; sourceTree = "<group>"; };
+		0C4BB6B81A95104800FCEC1F /* Lexer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Lexer.swift; sourceTree = "<group>"; };
+		0C4BB6BC1A951F3000FCEC1F /* SwiftRegex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftRegex.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +78,9 @@
 			isa = PBXGroup;
 			children = (
 				0C2515D51A7AA65000A78055 /* AppDelegate.swift */,
+				0C4BB6B61A950F8400FCEC1F /* Model */,
+				0C4BB6B51A950F7800FCEC1F /* View */,
+				0C4BB6B71A950F9400FCEC1F /* Controller */,
 				0C2515D71A7AA65000A78055 /* Images.xcassets */,
 				0C2515D91A7AA65000A78055 /* MainMenu.xib */,
 				0C2515D31A7AA65000A78055 /* Supporting Files */,
@@ -104,6 +111,29 @@
 				0C2515E51A7AA65000A78055 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		0C4BB6B51A950F7800FCEC1F /* View */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = View;
+			sourceTree = "<group>";
+		};
+		0C4BB6B61A950F8400FCEC1F /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				0C4BB6B81A95104800FCEC1F /* Lexer.swift */,
+				0C4BB6BC1A951F3000FCEC1F /* SwiftRegex.swift */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
+		0C4BB6B71A950F9400FCEC1F /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Controller;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -205,7 +235,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0C4BB6B91A95104800FCEC1F /* Lexer.swift in Sources */,
 				0C2515D61A7AA65000A78055 /* AppDelegate.swift in Sources */,
+				0C4BB6BD1A951F3000FCEC1F /* SwiftRegex.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -393,6 +425,7 @@
 				0C2515EC1A7AA65000A78055 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		0C2515ED1A7AA65000A78055 /* Build configuration list for PBXNativeTarget "SwiftCompilerTests" */ = {
 			isa = XCConfigurationList;
@@ -401,6 +434,7 @@
 				0C2515EF1A7AA65000A78055 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
