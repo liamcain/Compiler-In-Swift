@@ -16,7 +16,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet weak var outputTextfield: NSTextField!
     @IBOutlet weak var compileButton: NSButton!
     @IBAction func compilePressed(sender: NSButton) {
-        outputTextfield.stringValue = inputTextfield.stringValue;
+        var tokenStream = lex(inputTextfield.stringValue)
+        print(tokenStream)
     }
 
 
