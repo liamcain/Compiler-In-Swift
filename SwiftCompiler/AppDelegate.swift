@@ -12,17 +12,38 @@ import Cocoa
 class AppDelegate: NSObject, NSApplicationDelegate {
 
     @IBOutlet weak var window: NSWindow!
-    @IBOutlet weak var inputTextfield: NSTextField!
-    @IBOutlet weak var outputTextfield: NSTextField!
+    @IBOutlet var inputTextView: NSTextView!
+    @IBOutlet weak var outputScrollView: NSScrollView!
+    
     @IBOutlet weak var compileButton: NSButton!
+    
+    var lexer: Lexer?
+    var parser: Parser?
+
     @IBAction func compilePressed(sender: NSButton) {
-        var tokenStream = lex(inputTextfield.stringValue)
-        print(tokenStream)
+        lexer = Lexer(_outputView: outputScrollView)
+        var tokenStream = lexer?.lex(inputTextView.string!)
+        printStream(tokenStream!)
+        
+        parser = Parser()
+        parser!.parse(tokenStream!)
     }
 
-
+    func printStream(tokenStream: Array<Token>){
+        var output: String = ""
+        for token in tokenStream {
+            println(token.str + "   " + token.type.rawValue)
+        }
+        return
+        var str: NSAttributedString = NSAttributedString(string: (output))
+        var textView = outputScrollView!.contentView.documentView as! NSTextView
+        textView.textStorage?.appendAttributedString(str)
+    }
+    
+    
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         // Insert code here to initialize your application
+        inputTextView.automaticQuoteSubstitutionEnabled = false
     }
 
     func applicationWillTerminate(aNotification: NSNotification) {
