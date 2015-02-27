@@ -66,18 +66,34 @@ class Parser {
         console = outputView
     }
     
-    func log(output: String){
-        var str: NSAttributedString = NSAttributedString(string: (output + "\n"))
+    func log(output: String, type: LogType){
+        
+        var finalOutput = output
+        var attributes: [NSObject : AnyObject]
+        switch type {
+        case LogType.Error:
+            finalOutput = "[Parse Error] " + output
+            attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.9, green: 0.4, blue: 0.4, alpha: 1.0)]
+        case LogType.Warning:
+            finalOutput = "[Parse Warning] " + output
+            attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)]
+        case LogType.Match:
+            finalOutput = "[Parse] " + output
+            attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.9, green: 0.9, blue: 0.3, alpha: 1.0)]
+        default:
+            attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)]
+        }
+        var str: NSAttributedString = NSAttributedString(string: (output + "\n"), attributes: attributes)
         console!.textStorage?.appendAttributedString(str)
     }
     
-    func parse(tokenStream: [Token]){
+    func parse(tokenStream: [Token]) -> Tree<Grammar>? {
         self.tokenStream = tokenStream
-        if self.tokenStream != nil {
+        if self.tokenStream != nil && count(self.tokenStream!) > 0 {
             nextToken = self.tokenStream![0]
             program()
         }
-        
+        return cst
     }
     
 //    func production(type: TokenType){
@@ -120,7 +136,7 @@ class Parser {
         } else if nextToken?.type == TokenType.t_braceL {
             block()
         } else {
-            log("Parse error")
+            log("Parse error", type:LogType.Error)
             nextToken = nil
         }
     }
@@ -165,7 +181,7 @@ class Parser {
         } else if nextToken?.type == TokenType.t_identifier {
             id()
         } else {
-            log("Parse error. Expecting expression. Instead found ")
+            log("Expecting expression. Instead found \(nextToken)", type:LogType.Error)
         }
     }
     
@@ -231,7 +247,7 @@ class Parser {
     
     func matchToken(type: TokenType){
         if nextToken?.type == type {
-            log(type.rawValue)
+            log(type.rawValue, type:LogType.Match)
             //add token to cs
             ++index
             if index < count(tokenStream!) {
@@ -239,7 +255,7 @@ class Parser {
             }
         } else {
             if let nextType = nextToken?.type.rawValue {
-                log("Parse error: Expected " + type.rawValue + ". Found " + nextType)
+                log("Expected \(type.rawValue) Found \(nextType)", type:LogType.Error)
             }
             nextToken = nil
         }

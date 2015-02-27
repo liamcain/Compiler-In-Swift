@@ -30,6 +30,13 @@ public enum TokenType: String {
     case t_eof = "t_eof"
 }
 
+public enum LogType {
+    case Message
+    case Match
+    case Error
+    case Warning
+}
+
 public struct Token {
     var str: String
     var type: TokenType
@@ -54,27 +61,48 @@ prefix func ~/(pattern: String) -> NSRegularExpression {
 class Lexer {
     
     var console: NSTextView?
-    var tokenStream: [Token] = []
+    var tokenStream: [Token]? = []
+    
+    let reservedWords: Dictionary<String, TokenType> = ["if":TokenType.t_if,
+        "while":TokenType.t_while,
+        "print":TokenType.t_print,
+        "int":TokenType.t_type,
+        "char":TokenType.t_type,
+        "string":TokenType.t_type,
+        "false":TokenType.t_boolval,
+        "true":TokenType.t_boolval ]
     
     init(outputView: NSTextView?){
         console = outputView
     }
     
-    func log(output: String){
-        var str: NSAttributedString = NSAttributedString(string: (output + "\n"))
+    func log(output: String, type: LogType){
+
+        var finalOutput = output
+        var attributes: [NSObject : AnyObject]
+        switch type {
+            case LogType.Error:
+                finalOutput = "[Lex Error] " + output
+                attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.9, green: 0.4, blue: 0.4, alpha: 1.0)]
+            case LogType.Warning:
+                finalOutput = "[Lex Warning] " + output
+                attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)]
+            case LogType.Match:
+                finalOutput = "[Token] " + output
+                attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.9, green: 0.9, blue: 0.3, alpha: 1.0)]
+            default:
+                attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)]
+        }
+        var str: NSAttributedString = NSAttributedString(string: (output + "\n"), attributes: attributes)
         console!.textStorage?.appendAttributedString(str)
     }
     
-    func lex(input: String) -> [Token] {
-        let reservedWords: Dictionary<String, TokenType> = ["if":TokenType.t_if,
-            "while":TokenType.t_while,
-            "print":TokenType.t_print,
-            "int":TokenType.t_type,
-            "char":TokenType.t_type,
-            "string":TokenType.t_type,
-            "false":TokenType.t_boolval,
-            "true":TokenType.t_boolval ]
-        
+    func createToken(str: String, type: TokenType){
+        log(str, type: LogType.Match)
+        tokenStream!.append(Token(str: str, type: type))
+    }
+    
+    func lex(input: String) -> [Token]? {
         var lexState: LexState = LexState.Default
         let arr = Array(input)
         let quote = "\""
@@ -87,8 +115,8 @@ class Lexer {
         
         while true {
             if i >= count(arr) || forward >= count(arr) {
-                log("Lex error. Reached EOL without finding $.")
-                return tokenStream
+                log("Reached EOL without finding $.", type: LogType.Error)
+                return nil
             }
             s = String(arr[i])
             s2 = String(arr[forward])
@@ -99,74 +127,60 @@ class Lexer {
                 case ~/"[a-z]":
                     var tokenSoFar = String(arr[i...forward]);
                     if let token = reservedWords[tokenSoFar] {
-                        tokenStream += [Token(str: tokenSoFar, type: token)]
+                        createToken(tokenSoFar, type: token)
                         lexState = LexState.Default
                         i = forward
                     } else {
                         ++forward
                     }
-                case ~/"[\n\\s\\t]":
-                    tokenStream.append(Token(str: s, type:TokenType.t_identifier))
-                    
-                    lexState = LexState.Default
-                    
-                    if forward - i == 1 {
-//                        lexState = LexState.Default
-                    } else {
-//                      println("Lex Error at position " + String(i) + ". Identifiers must be a single character.")
-                        return tokenStream
-                    }
+//                case ~/"[\n\\s\\t]":
+//                    tokenStream.append(Token(str: s, type:TokenType.t_identifier))
+//                    lexState = LexState.Default
                 default:
                     lexState = LexState.Default
-                    tokenStream.append(Token(str:s, type:TokenType.t_identifier))
-                    if forward - i == 1 {
-                        
-                    } else {
-                        
-//                        println("Lex error at position " + String(forward))
-//                        return tokenStream
-                    }
+                    createToken(s, type:TokenType.t_identifier)
                 }
             case LexState.Default:
                 switch s {
                     case "$":
+                        createToken(s, type: TokenType.t_eof)
                         return tokenStream
                     case ~/"[\\s\\t]":
-                        println("ignore whitespace")
+                        ++i
                     case "\n":
                         ++lineNum
                         linePos = 0
                     case quote:
                         lexState = LexState.String
-                        tokenStream.append(Token(str:s, type:TokenType.t_quote))
+                        createToken(s, type:TokenType.t_quote)
                     case ~/"[a-z]":
                         lexState = LexState.Searching
                         forward = i+1
                     case ~/"[0-9]":
-                        tokenStream.append(Token(str:s, type:TokenType.t_digit))
+                        createToken(s, type:TokenType.t_digit)
                     case "+":
-                        tokenStream.append(Token(str:s, type:TokenType.t_intop))
+                        createToken(s, type:TokenType.t_intop)
                     case "(":
-                        tokenStream.append(Token(str: s, type: TokenType.t_parenL))
+                        createToken(s, type: TokenType.t_parenL)
                     case ")":
-                        tokenStream.append(Token(str:s, type: TokenType.t_parenR))
+                        createToken(s, type: TokenType.t_parenR)
                     case "{":
-                        tokenStream.append(Token(str:s, type:TokenType.t_braceL))
+                        createToken(s, type:TokenType.t_braceL)
                     case "}":
-                        tokenStream.append(Token(str:s, type:TokenType.t_braceR))
+                        createToken(s, type:TokenType.t_braceR)
                     case "=":
                         if i+1 < count(arr) && arr[i+1] == "=" {
-                            tokenStream.append(Token(str:s+[arr[i+1]], type:TokenType.t_boolop))
+                            createToken(s+[arr[i+1]], type:TokenType.t_boolop)
                             ++i
                         } else {
-                            tokenStream.append(Token(str:s, type:TokenType.t_assign))
+                            createToken(s, type:TokenType.t_assign)
                         }
                     case "!":
                         if i+1 >= count(arr) && arr[i+1] == "=" {
-                            tokenStream.append(Token(str:s+[arr[i+1]], type:TokenType.t_boolop))
+                            createToken(s+[arr[i+1]], type:TokenType.t_boolop)
                             ++i
                         } else {
-                            log("Lex error at position " + String(forward))
+                            log("Lex error at position \(forward)", type:LogType.Error)
                             return tokenStream
                         }
                     default:
@@ -175,12 +189,12 @@ class Lexer {
             case LexState.String:
                 switch s {
                 case quote:
-                    tokenStream.append(Token(str:s, type:TokenType.t_quote))
+                    createToken(s, type:TokenType.t_quote)
                     lexState = LexState.Default
                 case ~/"[a-z ]":
-                    tokenStream.append(Token(str:s, type:TokenType.t_string))
+                    createToken(s, type:TokenType.t_string)
                 default:
-                    log("Lex error at position " + String(forward))
+                    log("Lex error at position \(forward)", type:LogType.Error)
                     return tokenStream
                 }
             }

@@ -702,7 +702,7 @@
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
                                                 <textView importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="rw4-kr-hjl" customClass="TextView" customModule="SwiftCompiler" customModuleProvider="target">
-                                                    <rect key="frame" x="0.0" y="0.0" width="238" height="133"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="238" height="591"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                     <size key="minSize" width="433" height="591"/>
@@ -742,7 +742,7 @@
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
                                                 <textView importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="nOY-cm-zct">
-                                                    <rect key="frame" x="0.0" y="0.0" width="238" height="133"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="238" height="591"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <color key="textColor" name="secondarySelectedControlColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -782,7 +782,7 @@
                         </connections>
                     </splitView>
                     <segmentedControl verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="DRi-jv-5If">
-                        <rect key="frame" x="399" y="598" width="226" height="20"/>
+                        <rect key="frame" x="538" y="598" width="226" height="20"/>
                         <segmentedCell key="cell" borderStyle="border" alignment="left" style="roundRect" trackingMode="selectOne" id="2Do-xl-GjZ">
                             <font key="font" metaFont="cellTitle"/>
                             <segments>
@@ -794,7 +794,7 @@
                         </segmentedCell>
                     </segmentedControl>
                     <button verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4zd-52-r8t">
-                        <rect key="frame" x="234" y="590" width="92" height="32"/>
+                        <rect key="frame" x="335" y="590" width="92" height="32"/>
                         <buttonCell key="cell" type="push" title="Compile" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="WTR-rl-Dav">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>

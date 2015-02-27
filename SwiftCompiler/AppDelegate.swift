@@ -25,18 +25,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var parser: Parser?
 
     @IBAction func compilePressed(sender: NSButton) {
-        var tokenStream = lexer?.lex(textView.string!)
-        parser!.parse(tokenStream!)
-    }
-
-    func printStream(tokenStream: Array<Token>){
-        var output: String = ""
-        for token in tokenStream {
-            println(token.str + "   " + token.type.rawValue)
+        
+        // -- LEX --------------------------------------
+        log("Starting Lex Phase...")
+        let tokenStream = lexer?.lex(textView.string!)
+        if tokenStream == nil {
+            log("Lex failed. Exiting.")
         }
-        var str: NSAttributedString = NSAttributedString(string: (output))
-        var textView = outputScrollView!.contentView.documentView as! NSTextView
-        textView.textStorage?.appendAttributedString(str)
+        log("Lex successful.\n")
+        
+        
+        // -- PARSE ------------------------------------
+        log("Starting Parse Phase...")
+        let cst = parser!.parse(tokenStream!)
+        if cst == nil {
+            log("Parse failed. Exiting.")
+        }
+        log("Parse successful. That's all for now.")
+    }
+    
+    func log(output: String){
+        let attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)]
+        var str: NSAttributedString = NSAttributedString(string: (output + "\n"), attributes: attributes)
+        console!.textStorage?.appendAttributedString(str)
     }
     
     
