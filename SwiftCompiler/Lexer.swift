@@ -40,6 +40,7 @@ public enum LogType {
 public struct Token {
     var str: String
     var type: TokenType
+    var position: CGPoint
 }
 
 public enum LexState {
@@ -62,6 +63,8 @@ class Lexer {
     
     var console: NSTextView?
     var tokenStream: [Token]? = []
+    var lineNum: Int = 0;
+    var linePos: Int = 0;
     
     let reservedWords: Dictionary<String, TokenType> = ["if":TokenType.t_if,
         "while":TokenType.t_while,
@@ -77,12 +80,11 @@ class Lexer {
     }
     
     func log(output: String, type: LogType){
-
         var finalOutput = output
         var attributes: [NSObject : AnyObject]
         switch type {
             case LogType.Error:
-                finalOutput = "[Lex Error] " + output
+                finalOutput = "[Lex Error at position \(lineNum):\(linePos)] " + output
                 attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.9, green: 0.4, blue: 0.4, alpha: 1.0)]
             case LogType.Warning:
                 finalOutput = "[Lex Warning] " + output
@@ -93,13 +95,13 @@ class Lexer {
             default:
                 attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)]
         }
-        var str: NSAttributedString = NSAttributedString(string: (output + "\n"), attributes: attributes)
+        var str: NSAttributedString = NSAttributedString(string: (finalOutput + "\n"), attributes: attributes)
         console!.textStorage?.appendAttributedString(str)
     }
     
     func createToken(str: String, type: TokenType){
         log(str, type: LogType.Match)
-        tokenStream!.append(Token(str: str, type: type))
+        tokenStream!.append(Token(str: str, type: type, position: CGPoint(x: lineNum, y: linePos)))
     }
     
     func lex(input: String) -> [Token]? {
@@ -108,14 +110,14 @@ class Lexer {
         let quote = "\""
         var i: Int = 0;
         var forward: Int = 0;
-        var lineNum: Int = 0;
-        var linePos: Int = 0;
+        lineNum = 0
+        linePos = 0
         var s :String, s2: String
         var err: NSMutableString = NSMutableString()
         
         while true {
             if i >= count(arr) || forward >= count(arr) {
-                log("Reached EOL without finding $.", type: LogType.Error)
+                log("Reached EOL without finding $.", type: LogType.Warning)
                 return nil
             }
             s = String(arr[i])
@@ -146,7 +148,7 @@ class Lexer {
                         createToken(s, type: TokenType.t_eof)
                         return tokenStream
                     case ~/"[\\s\\t]":
-                        ++i
+                        continue
                     case "\n":
                         ++lineNum
                         linePos = 0
@@ -176,26 +178,28 @@ class Lexer {
                             createToken(s, type:TokenType.t_assign)
                         }
                     case "!":
-                        if i+1 >= count(arr) && arr[i+1] == "=" {
+                        if i+1 < count(arr) && arr[i+1] == "=" {
                             createToken(s+[arr[i+1]], type:TokenType.t_boolop)
                             ++i
                         } else {
-                            log("Lex error at position \(forward)", type:LogType.Error)
-                            return tokenStream
+                            log("Unexpected '!'", type:LogType.Error)
+                            return nil
                         }
                     default:
-                        return tokenStream
+                        log("Unknown char \(s)", type:LogType.Error)
+                        return nil
                 }
+                ++linePos
             case LexState.String:
                 switch s {
-                case quote:
-                    createToken(s, type:TokenType.t_quote)
-                    lexState = LexState.Default
-                case ~/"[a-z ]":
-                    createToken(s, type:TokenType.t_string)
-                default:
-                    log("Lex error at position \(forward)", type:LogType.Error)
-                    return tokenStream
+                    case quote:
+                        createToken(s, type:TokenType.t_quote)
+                        lexState = LexState.Default
+                    case ~/"[a-z ]":
+                        createToken(s, type:TokenType.t_string)
+                    default:
+                        log("Unexpected '\(s)' found within a string. Strings only support lowercase characters and spaces.", type:LogType.Error)
+                        return nil
                 }
             }
             if lexState != LexState.Searching {

@@ -78,12 +78,12 @@ class Parser {
             finalOutput = "[Parse Warning] " + output
             attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)]
         case LogType.Match:
-            finalOutput = "[Parse] " + output
+            finalOutput = "[Parse Match] " + output
             attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.9, green: 0.9, blue: 0.3, alpha: 1.0)]
         default:
             attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)]
         }
-        var str: NSAttributedString = NSAttributedString(string: (output + "\n"), attributes: attributes)
+        var str: NSAttributedString = NSAttributedString(string: (finalOutput + "\n"), attributes: attributes)
         console!.textStorage?.appendAttributedString(str)
     }
     
@@ -95,14 +95,6 @@ class Parser {
         }
         return cst
     }
-    
-//    func production(type: TokenType){
-//        
-//    }
-//    
-//    func nonterminal(type: GrammarType){
-//        
-//    }
     
     func program(){
         block()
@@ -136,7 +128,7 @@ class Parser {
         } else if nextToken?.type == TokenType.t_braceL {
             block()
         } else {
-            log("Parse error", type:LogType.Error)
+            log("Expected the start of a new statement. Instead found \(nextToken?.str)", type:LogType.Error)
             nextToken = nil
         }
     }
@@ -255,7 +247,7 @@ class Parser {
             }
         } else {
             if let nextType = nextToken?.type.rawValue {
-                log("Expected \(type.rawValue) Found \(nextType)", type:LogType.Error)
+                log("Expected \(type.rawValue). Found \(nextType)", type:LogType.Error)
             }
             nextToken = nil
         }

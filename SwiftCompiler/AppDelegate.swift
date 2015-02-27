@@ -31,6 +31,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let tokenStream = lexer?.lex(textView.string!)
         if tokenStream == nil {
             log("Lex failed. Exiting.")
+            return
         }
         log("Lex successful.\n")
         
