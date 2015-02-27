@@ -15,6 +15,10 @@
 		0C4BB6BD1A951F3000FCEC1F /* SwiftRegex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4BB6BC1A951F3000FCEC1F /* SwiftRegex.swift */; };
 		0C8F14A31A98D4EF00751B8A /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C8F14A21A98D4EF00751B8A /* Parser.swift */; };
 		0C8F14A71A9A86CD00751B8A /* Tree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C8F14A61A9A86CD00751B8A /* Tree.swift */; };
+		0CDAEED91AA0B6E200D66158 /* RulerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDAEED51AA0B6E200D66158 /* RulerView.swift */; };
+		0CDAEEDA1AA0B6E200D66158 /* ScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDAEED61AA0B6E200D66158 /* ScrollView.swift */; };
+		0CDAEEDB1AA0B6E200D66158 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDAEED71AA0B6E200D66158 /* TextView.swift */; };
+		0CDAEEDC1AA0B6E200D66158 /* TextViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDAEED81AA0B6E200D66158 /* TextViewDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +44,10 @@
 		0C4BB6BC1A951F3000FCEC1F /* SwiftRegex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftRegex.swift; sourceTree = "<group>"; };
 		0C8F14A21A98D4EF00751B8A /* Parser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
 		0C8F14A61A9A86CD00751B8A /* Tree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tree.swift; sourceTree = "<group>"; };
+		0CDAEED51AA0B6E200D66158 /* RulerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RulerView.swift; path = ../../SwiftEdit/SwiftEdit/RulerView.swift; sourceTree = "<group>"; };
+		0CDAEED61AA0B6E200D66158 /* ScrollView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ScrollView.swift; path = ../../SwiftEdit/SwiftEdit/ScrollView.swift; sourceTree = "<group>"; };
+		0CDAEED71AA0B6E200D66158 /* TextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TextView.swift; path = ../../SwiftEdit/SwiftEdit/TextView.swift; sourceTree = "<group>"; };
+		0CDAEED81AA0B6E200D66158 /* TextViewDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TextViewDelegate.swift; path = ../../SwiftEdit/SwiftEdit/TextViewDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -120,6 +128,10 @@
 		0C4BB6B51A950F7800FCEC1F /* View */ = {
 			isa = PBXGroup;
 			children = (
+				0CDAEED51AA0B6E200D66158 /* RulerView.swift */,
+				0CDAEED61AA0B6E200D66158 /* ScrollView.swift */,
+				0CDAEED71AA0B6E200D66158 /* TextView.swift */,
+				0CDAEED81AA0B6E200D66158 /* TextViewDelegate.swift */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -243,8 +255,12 @@
 			files = (
 				0C8F14A71A9A86CD00751B8A /* Tree.swift in Sources */,
 				0C8F14A31A98D4EF00751B8A /* Parser.swift in Sources */,
+				0CDAEED91AA0B6E200D66158 /* RulerView.swift in Sources */,
 				0C4BB6B91A95104800FCEC1F /* Lexer.swift in Sources */,
 				0C2515D61A7AA65000A78055 /* AppDelegate.swift in Sources */,
+				0CDAEEDA1AA0B6E200D66158 /* ScrollView.swift in Sources */,
+				0CDAEEDC1AA0B6E200D66158 /* TextViewDelegate.swift in Sources */,
+				0CDAEEDB1AA0B6E200D66158 /* TextView.swift in Sources */,
 				0C4BB6BD1A951F3000FCEC1F /* SwiftRegex.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -360,10 +376,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = SwiftCompiler/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
@@ -371,10 +390,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = SwiftCompiler/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 			};
 			name = Release;
 		};

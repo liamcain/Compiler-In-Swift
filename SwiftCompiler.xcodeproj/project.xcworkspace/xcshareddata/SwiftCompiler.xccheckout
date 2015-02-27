@@ -10,6 +10,8 @@
 	<string>SwiftCompiler</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
+		<key>A38AAC14B02E21EFACF8997BE87F21066EFD7838</key>
+		<string>github.com:jpsim/SwiftEdit.git</string>
 		<key>BC9DFF5CAE4BD1515C18AADD898ED86B91A2EB83</key>
 		<string>github.com:BoundInCode/Compiler-In-Swift.git</string>
 	</dict>
@@ -17,6 +19,8 @@
 	<string>SwiftCompiler.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
+		<key>A38AAC14B02E21EFACF8997BE87F21066EFD7838</key>
+		<string>../../../SwiftEdit</string>
 		<key>BC9DFF5CAE4BD1515C18AADD898ED86B91A2EB83</key>
 		<string>../..</string>
 	</dict>
@@ -35,6 +39,14 @@
 			<string>BC9DFF5CAE4BD1515C18AADD898ED86B91A2EB83</string>
 			<key>IDESourceControlWCCName</key>
 			<string>Compiler-In-Swift</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>A38AAC14B02E21EFACF8997BE87F21066EFD7838</string>
+			<key>IDESourceControlWCCName</key>
+			<string>SwiftEdit</string>
 		</dict>
 	</array>
 </dict>

@@ -53,17 +53,16 @@ prefix func ~/(pattern: String) -> NSRegularExpression {
 
 class Lexer {
     
-    weak var outputView: NSScrollView?
+    var console: NSTextView?
     var tokenStream: [Token] = []
     
-    init(_outputView: NSScrollView){
-        outputView = _outputView
+    init(outputView: NSTextView?){
+        console = outputView
     }
     
     func log(output: String){
         var str: NSAttributedString = NSAttributedString(string: (output + "\n"))
-        var textView = outputView!.contentView.documentView as! NSTextView
-        textView.textStorage?.appendAttributedString(str)
+        console!.textStorage?.appendAttributedString(str)
     }
     
     func lex(input: String) -> [Token] {
@@ -88,7 +87,7 @@ class Lexer {
         
         while true {
             if i >= count(arr) || forward >= count(arr) {
-                println("Lex error. Reached EOL without finding $.")
+                log("Lex error. Reached EOL without finding $.")
                 return tokenStream
             }
             s = String(arr[i])
@@ -167,7 +166,7 @@ class Lexer {
                             tokenStream.append(Token(str:s+[arr[i+1]], type:TokenType.t_boolop))
                             ++i
                         } else {
-                            println("Lex error at position " + String(forward))
+                            log("Lex error at position " + String(forward))
                             return tokenStream
                         }
                     default:
@@ -181,7 +180,7 @@ class Lexer {
                 case ~/"[a-z ]":
                     tokenStream.append(Token(str:s, type:TokenType.t_string))
                 default:
-                    println("Lex error at position " + String(forward))
+                    log("Lex error at position " + String(forward))
                     return tokenStream
                 }
             }

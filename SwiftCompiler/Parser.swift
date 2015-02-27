@@ -56,12 +56,19 @@ class Parser {
     var cst: Tree<Grammar>?
     var currentNode: Node<Grammar>?
     var nextToken: Token?
+    var console: NSTextView?
     
-    init(){
+    init(outputView: NSTextView?){
 //        var rootNode = Node(Grammar(curentNode, type: GrammarType.Block))
         cst = Tree()
         currentNode = nil
         nextToken = nil
+        console = outputView
+    }
+    
+    func log(output: String){
+        var str: NSAttributedString = NSAttributedString(string: (output + "\n"))
+        console!.textStorage?.appendAttributedString(str)
     }
     
     func parse(tokenStream: [Token]){
@@ -113,7 +120,7 @@ class Parser {
         } else if nextToken?.type == TokenType.t_braceL {
             block()
         } else {
-            println("Parse error")
+            log("Parse error")
             nextToken = nil
         }
     }
@@ -158,7 +165,7 @@ class Parser {
         } else if nextToken?.type == TokenType.t_identifier {
             id()
         } else {
-            println("Parse error. Expecting expression. Instead found ")
+            log("Parse error. Expecting expression. Instead found ")
         }
     }
     
@@ -192,7 +199,7 @@ class Parser {
     }
     
     func charList(){
-        if nextToken?.type == TokenType.t_string {NSString
+        if nextToken?.type == TokenType.t_string {
             matchToken(TokenType.t_string)
             charList()
         }
@@ -224,7 +231,7 @@ class Parser {
     
     func matchToken(type: TokenType){
         if nextToken?.type == type {
-            println(type.rawValue)
+            log(type.rawValue)
             //add token to cs
             ++index
             if index < count(tokenStream!) {
@@ -232,7 +239,7 @@ class Parser {
             }
         } else {
             if let nextType = nextToken?.type.rawValue {
-                println("Parse error: Expected " + type.rawValue + ". Found " + nextType)
+                log("Parse error: Expected " + type.rawValue + ". Found " + nextType)
             }
             nextToken = nil
         }
