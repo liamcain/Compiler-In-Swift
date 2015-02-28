@@ -120,7 +120,7 @@ class Lexer {
         while true {
             if i >= count(arr) || forward >= count(arr) {
                 log("Reached EOL without finding $.", type: LogType.Warning)
-                return nil
+                return tokenStream
             }
             s = String(arr[i])
             s2 = String(arr[forward])
