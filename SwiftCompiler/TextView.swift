@@ -97,7 +97,7 @@ class TextView: NSTextView {
     func initGuidePosition() -> CGFloat {
         var lineRectCount: Int = 0
         var stripSpace = false
-        if string!.utf16Count < 1 {
+        if count(string!.utf16) < 1 {
             string = " "
             stripSpace = true
         }
