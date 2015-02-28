@@ -18,3 +18,7 @@ How to Setup
 - Open `SwiftCompiler.xcodeproj` in Xcode
 - Press `Build > Run` (<kbd>⌘</kbd> + <kbd>R</kbd>)
 
+Credits
+=======
+JP Simard - For his project [SwiftEdit](github.com/jpsim/SwiftEdit) which adds line numbers to NSTextViews.
+

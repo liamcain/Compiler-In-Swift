@@ -78,7 +78,7 @@ class TextViewDelegate: NSObject {
                 }
             }
             if shouldIndent {
-                var mod = Int(indent.utf16Count % HMTabWidth)
+                var mod = Int(count(indent.utf16) % HMTabWidth)
                 mod = (mod == 0) ? HMTabWidth : HMTabWidth - mod
                 for var i = 0; i < mod; i++ {
                     indent += " "
