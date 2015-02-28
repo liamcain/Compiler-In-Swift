@@ -17,6 +17,7 @@
                 <outlet property="console" destination="nOY-cm-zct" id="URZ-xS-AkZ"/>
                 <outlet property="inputScrollView" destination="8d0-wD-oCL" id="8ah-Pp-6dL"/>
                 <outlet property="outputScrollView" destination="Djx-Ye-d5Y" id="4l6-J7-cSP"/>
+                <outlet property="snippetsMenu" destination="DGs-k3-caq" id="w6z-zf-kqH"/>
                 <outlet property="splitView" destination="kJ1-tU-9ai" id="cKm-c1-Hzq"/>
                 <outlet property="window" destination="QvC-M9-y7g" id="gIp-Ho-8D9"/>
             </connections>
@@ -357,8 +358,15 @@
                         <items>
                             <menuItem title="Create Snippet..." id="Avj-Fe-DGu">
                                 <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="createSnippetPressed:" target="Voe-Tx-rLC" id="kj9-Xy-8Fm"/>
+                                </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="UCX-gP-NyN"/>
+                            <menuItem title="Insert Snippet" id="V9u-Yp-foF" userLabel="Default Snippets">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="Insert Snippet" id="DGs-k3-caq"/>
+                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>
@@ -387,6 +395,18 @@
                         </items>
                     </menu>
                 </menuItem>
+                <menuItem title="Build" id="fxY-Re-yzA">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <menu key="submenu" title="Build" id="q5e-ys-1Ss">
+                        <items>
+                            <menuItem title="Compile" keyEquivalent="r" id="NWc-QU-LGu">
+                                <connections>
+                                    <action selector="compileMenuItemPressed:" target="Voe-Tx-rLC" id="m1r-5o-Url"/>
+                                </connections>
+                            </menuItem>
+                        </items>
+                    </menu>
+                </menuItem>
                 <menuItem title="Help" id="wpr-3q-Mcd">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Help" systemMenu="help" id="F2S-fz-NVQ">
@@ -410,14 +430,6 @@
                 <rect key="frame" x="0.0" y="0.0" width="861" height="636"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Vkt-9y-T6U">
-                        <rect key="frame" x="20" y="599" width="42" height="17"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Code:" id="yk8-Y2-2co">
-                            <font key="font" metaFont="system"/>
-                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
                     <splitView misplaced="YES" dividerStyle="thin" vertical="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kJ1-tU-9ai">
                         <rect key="frame" x="0.0" y="0.0" width="861" height="591"/>
                         <subviews>
@@ -542,7 +554,7 @@
                     <constraint firstItem="4zd-52-r8t" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" constant="18" id="mmI-H6-5b1"/>
                 </constraints>
             </view>
-            <point key="canvasLocation" x="274.5" y="649"/>
+            <point key="canvasLocation" x="-946.5" y="246"/>
         </window>
     </objects>
 </document>

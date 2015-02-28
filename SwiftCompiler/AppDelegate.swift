@@ -15,6 +15,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet weak var splitView: NSSplitView!
     @IBOutlet weak var inputScrollView: ScrollView!
     @IBOutlet weak var outputScrollView: NSScrollView!
+    @IBOutlet weak var snippetsMenu: NSMenu!
     var textView: NSTextView { return inputScrollView!.contentView.documentView as! NSTextView }
     @IBOutlet var console: NSTextView?
     var rulerView: RulerView?
@@ -23,9 +24,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     var lexer: Lexer?
     var parser: Parser?
+    var snippets: Dictionary<String, String> = Dictionary()
 
+    @IBAction func createSnippetPressed(sender: AnyObject) {
+        let name = "Test Case \(snippets.count)"
+        snippetsMenu.addItem(NSMenuItem(title: name, action: Selector("insertSnippet:"), keyEquivalent: ""))
+        snippets[name] = textView.string!
+        Defaults["snippets"] = snippets
+        Defaults.synchronize()
+//        Defaults["Snippets"].dictionary!["Test"] = textView.string!
+    }
+    @IBAction func compileMenuItemPressed(sender: AnyObject) {
+        compile()
+    }
     @IBAction func compilePressed(sender: NSButton) {
-        
+        compile()
+    }
+    
+    func compile(){
         // -- LEX --------------------------------------
         log("Starting Lex Phase...")
         let tokenStream = lexer?.lex(textView.string!)
@@ -51,12 +67,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         console!.textStorage?.appendAttributedString(str)
     }
     
+    func insertSnippet(sender: AnyObject){
+        let str = (sender as! NSMenuItem).title
+        
+        textView.insertText(snippets[str]!)
+    }
+    
+    func populateSnippetsMenu() {
+        for (key, value) in snippets {
+            snippetsMenu.addItem(NSMenuItem(title: key, action: Selector("insertSnippet:"), keyEquivalent: ""))
+        }
+    }
     
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         // Insert code here to initialize your application
         let textView = self.textView
         lexer = Lexer(outputView: console)
         parser = Parser(outputView: console)
+        
+        if Defaults["snippets"].dictionary != nil {
+            snippets = Defaults["snippets"].dictionary as! Dictionary<String, String>
+            populateSnippetsMenu()
+        }
         
         textView.translatesAutoresizingMaskIntoConstraints = true
         textView.textContainerInset = NSMakeSize(0,1)
@@ -73,6 +105,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         console!.drawsBackground = true
         console!.editable = false
         console!.backgroundColor = NSColor(calibratedRed: 0.2, green: 0.2, blue: 0.25, alpha: 1.0)
+        
+        
     }
 
     func applicationWillTerminate(aNotification: NSNotification) {

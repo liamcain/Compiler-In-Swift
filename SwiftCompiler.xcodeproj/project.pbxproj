@@ -12,9 +12,9 @@
 		0C2515DB1A7AA65000A78055 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0C2515D91A7AA65000A78055 /* MainMenu.xib */; };
 		0C2515E71A7AA65000A78055 /* SwiftCompilerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2515E61A7AA65000A78055 /* SwiftCompilerTests.swift */; };
 		0C4BB6B91A95104800FCEC1F /* Lexer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4BB6B81A95104800FCEC1F /* Lexer.swift */; };
-		0C4BB6BD1A951F3000FCEC1F /* SwiftRegex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4BB6BC1A951F3000FCEC1F /* SwiftRegex.swift */; };
 		0C8F14A31A98D4EF00751B8A /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C8F14A21A98D4EF00751B8A /* Parser.swift */; };
 		0C8F14A71A9A86CD00751B8A /* Tree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C8F14A61A9A86CD00751B8A /* Tree.swift */; };
+		0CB77A121AA1460000692316 /* SwiftyUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CB77A111AA1460000692316 /* SwiftyUserDefaults.swift */; };
 		0CDAEED91AA0B6E200D66158 /* RulerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDAEED51AA0B6E200D66158 /* RulerView.swift */; };
 		0CDAEEDA1AA0B6E200D66158 /* ScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDAEED61AA0B6E200D66158 /* ScrollView.swift */; };
 		0CDAEEDB1AA0B6E200D66158 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDAEED71AA0B6E200D66158 /* TextView.swift */; };
@@ -41,9 +41,9 @@
 		0C2515E51A7AA65000A78055 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0C2515E61A7AA65000A78055 /* SwiftCompilerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftCompilerTests.swift; sourceTree = "<group>"; };
 		0C4BB6B81A95104800FCEC1F /* Lexer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Lexer.swift; sourceTree = "<group>"; };
-		0C4BB6BC1A951F3000FCEC1F /* SwiftRegex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftRegex.swift; sourceTree = "<group>"; };
 		0C8F14A21A98D4EF00751B8A /* Parser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
 		0C8F14A61A9A86CD00751B8A /* Tree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tree.swift; sourceTree = "<group>"; };
+		0CB77A111AA1460000692316 /* SwiftyUserDefaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftyUserDefaults.swift; sourceTree = "<group>"; };
 		0CDAEED51AA0B6E200D66158 /* RulerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RulerView.swift; path = ../../SwiftEdit/SwiftEdit/RulerView.swift; sourceTree = "<group>"; };
 		0CDAEED61AA0B6E200D66158 /* ScrollView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ScrollView.swift; path = ../../SwiftEdit/SwiftEdit/ScrollView.swift; sourceTree = "<group>"; };
 		0CDAEED71AA0B6E200D66158 /* TextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TextView.swift; path = ../../SwiftEdit/SwiftEdit/TextView.swift; sourceTree = "<group>"; };
@@ -89,6 +89,7 @@
 		0C2515D21A7AA65000A78055 /* SwiftCompiler */ = {
 			isa = PBXGroup;
 			children = (
+				0CB77A101AA145E600692316 /* Helpers */,
 				0C2515D51A7AA65000A78055 /* AppDelegate.swift */,
 				0C4BB6B61A950F8400FCEC1F /* Model */,
 				0C4BB6B51A950F7800FCEC1F /* View */,
@@ -142,7 +143,6 @@
 				0C4BB6B81A95104800FCEC1F /* Lexer.swift */,
 				0C8F14A21A98D4EF00751B8A /* Parser.swift */,
 				0C8F14A61A9A86CD00751B8A /* Tree.swift */,
-				0C4BB6BC1A951F3000FCEC1F /* SwiftRegex.swift */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -152,6 +152,14 @@
 			children = (
 			);
 			name = Controller;
+			sourceTree = "<group>";
+		};
+		0CB77A101AA145E600692316 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				0CB77A111AA1460000692316 /* SwiftyUserDefaults.swift */,
+			);
+			name = Helpers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -261,7 +269,7 @@
 				0CDAEEDA1AA0B6E200D66158 /* ScrollView.swift in Sources */,
 				0CDAEEDC1AA0B6E200D66158 /* TextViewDelegate.swift in Sources */,
 				0CDAEEDB1AA0B6E200D66158 /* TextView.swift in Sources */,
-				0C4BB6BD1A951F3000FCEC1F /* SwiftRegex.swift in Sources */,
+				0CB77A121AA1460000692316 /* SwiftyUserDefaults.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

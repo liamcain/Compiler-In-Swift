@@ -40,7 +40,7 @@ public enum LogType {
 public struct Token {
     var str: String
     var type: TokenType
-    var position: CGPoint
+    var position: (Int, Int)
 }
 
 public enum LexState {
@@ -63,8 +63,8 @@ class Lexer {
     
     var console: NSTextView?
     var tokenStream: [Token]? = []
-    var lineNum: Int = 0;
-    var linePos: Int = 0;
+    var lineNum: Int = 1;
+    var linePos: Int = 1;
     
     let reservedWords: Dictionary<String, TokenType> = ["if":TokenType.t_if,
         "while":TokenType.t_while,
@@ -85,7 +85,8 @@ class Lexer {
         switch type {
             case LogType.Error:
                 finalOutput = "[Lex Error at position \(lineNum):\(linePos)] " + output
-                attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.9, green: 0.4, blue: 0.4, alpha: 1.0)]
+                attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.9, green: 0.4, blue: 0.4, alpha: 1.0),
+                              NSUnderlineStyleAttributeName: NSUnderlineStyleSingle]
             case LogType.Warning:
                 finalOutput = "[Lex Warning] " + output
                 attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)]
@@ -97,11 +98,12 @@ class Lexer {
         }
         var str: NSAttributedString = NSAttributedString(string: (finalOutput + "\n"), attributes: attributes)
         console!.textStorage?.appendAttributedString(str)
+        console?.scrollToEndOfDocument(self)
     }
     
     func createToken(str: String, type: TokenType){
         log(str, type: LogType.Match)
-        tokenStream!.append(Token(str: str, type: type, position: CGPoint(x: lineNum, y: linePos)))
+        tokenStream!.append(Token(str: str, type: type, position:(lineNum,linePos)))
     }
     
     func lex(input: String) -> [Token]? {
@@ -110,7 +112,7 @@ class Lexer {
         let quote = "\""
         var i: Int = 0;
         var forward: Int = 0;
-        lineNum = 0
+        lineNum = 1
         linePos = 0
         var s :String, s2: String
         var err: NSMutableString = NSMutableString()
@@ -131,13 +133,11 @@ class Lexer {
                     if let token = reservedWords[tokenSoFar] {
                         createToken(tokenSoFar, type: token)
                         lexState = LexState.Default
+                        linePos += forward-i
                         i = forward
                     } else {
                         ++forward
                     }
-//                case ~/"[\n\\s\\t]":
-//                    tokenStream.append(Token(str: s, type:TokenType.t_identifier))
-//                    lexState = LexState.Default
                 default:
                     lexState = LexState.Default
                     createToken(s, type:TokenType.t_identifier)
@@ -147,11 +147,11 @@ class Lexer {
                     case "$":
                         createToken(s, type: TokenType.t_eof)
                         return tokenStream
-                    case ~/"[\\s\\t]":
-                        continue
                     case "\n":
                         ++lineNum
                         linePos = 0
+                    case ~/"[\\s\\t]":
+                        println("ignore whitespace")
                     case quote:
                         lexState = LexState.String
                         createToken(s, type:TokenType.t_quote)
@@ -189,7 +189,6 @@ class Lexer {
                         log("Unknown char \(s)", type:LogType.Error)
                         return nil
                 }
-                ++linePos
             case LexState.String:
                 switch s {
                     case quote:
@@ -197,6 +196,12 @@ class Lexer {
                         lexState = LexState.Default
                     case ~/"[a-z ]":
                         createToken(s, type:TokenType.t_string)
+                    case "\n": // Special case so that '\n' prints out correctly
+                        log("Unexpected '\\n' found within a string. Strings only support lowercase characters and spaces.", type:LogType.Error)
+                        return nil
+                    case "\t": // Special case so that '\t' prints out correctly
+                        log("Unexpected '\\t' found within a string. Strings only support lowercase characters and spaces.", type:LogType.Error)
+                        return nil
                     default:
                         log("Unexpected '\(s)' found within a string. Strings only support lowercase characters and spaces.", type:LogType.Error)
                         return nil
@@ -204,6 +209,7 @@ class Lexer {
             }
             if lexState != LexState.Searching {
                 ++i
+                ++linePos
             }
         }
     }

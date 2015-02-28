@@ -72,7 +72,9 @@ class Parser {
         var attributes: [NSObject : AnyObject]
         switch type {
         case LogType.Error:
-            finalOutput = "[Parse Error] " + output
+            let lineNum = nextToken!.position.0
+            let linePos = nextToken!.position.1
+            finalOutput = "[Parse Error at position \(lineNum):\(linePos)] " + output
             attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.9, green: 0.4, blue: 0.4, alpha: 1.0)]
         case LogType.Warning:
             finalOutput = "[Parse Warning] " + output
@@ -85,10 +87,12 @@ class Parser {
         }
         var str: NSAttributedString = NSAttributedString(string: (finalOutput + "\n"), attributes: attributes)
         console!.textStorage?.appendAttributedString(str)
+        console?.scrollToEndOfDocument(self)
     }
     
     func parse(tokenStream: [Token]) -> Tree<Grammar>? {
         self.tokenStream = tokenStream
+        print(tokenStream)
         if self.tokenStream != nil && count(self.tokenStream!) > 0 {
             nextToken = self.tokenStream![0]
             program()
@@ -128,7 +132,7 @@ class Parser {
         } else if nextToken?.type == TokenType.t_braceL {
             block()
         } else {
-            log("Expected the start of a new statement. Instead found \(nextToken?.str)", type:LogType.Error)
+            log("Expected the start of a new statement. Instead found \(nextToken!.str)", type:LogType.Error)
             nextToken = nil
         }
     }
@@ -196,7 +200,9 @@ class Parser {
             boolval()
         } else {
             matchToken(TokenType.t_parenL)
+            expr()
             boolop()
+            expr()
             matchToken(TokenType.t_parenR)
         }
         
