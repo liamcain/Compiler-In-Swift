@@ -34,4 +34,5 @@ class Tree<T> {
     init(root: T) {
         self.root = Node(root)
     }
+    
 }

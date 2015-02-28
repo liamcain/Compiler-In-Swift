@@ -370,6 +370,18 @@
                         </items>
                     </menu>
                 </menuItem>
+                <menuItem title="Build" id="fxY-Re-yzA">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <menu key="submenu" title="Build" id="q5e-ys-1Ss">
+                        <items>
+                            <menuItem title="Compile" keyEquivalent="r" id="NWc-QU-LGu">
+                                <connections>
+                                    <action selector="compileMenuItemPressed:" target="Voe-Tx-rLC" id="m1r-5o-Url"/>
+                                </connections>
+                            </menuItem>
+                        </items>
+                    </menu>
+                </menuItem>
                 <menuItem title="Window" id="aUF-d1-5bR">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Window" systemMenu="window" id="Td7-aD-5lo">
@@ -390,18 +402,6 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="arrangeInFront:" target="-1" id="DRN-fu-gQh"/>
-                                </connections>
-                            </menuItem>
-                        </items>
-                    </menu>
-                </menuItem>
-                <menuItem title="Build" id="fxY-Re-yzA">
-                    <modifierMask key="keyEquivalentModifierMask"/>
-                    <menu key="submenu" title="Build" id="q5e-ys-1Ss">
-                        <items>
-                            <menuItem title="Compile" keyEquivalent="r" id="NWc-QU-LGu">
-                                <connections>
-                                    <action selector="compileMenuItemPressed:" target="Voe-Tx-rLC" id="m1r-5o-Url"/>
                                 </connections>
                             </menuItem>
                         </items>

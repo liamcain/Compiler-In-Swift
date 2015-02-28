@@ -15,10 +15,10 @@
 		0C8F14A31A98D4EF00751B8A /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C8F14A21A98D4EF00751B8A /* Parser.swift */; };
 		0C8F14A71A9A86CD00751B8A /* Tree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C8F14A61A9A86CD00751B8A /* Tree.swift */; };
 		0CB77A121AA1460000692316 /* SwiftyUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CB77A111AA1460000692316 /* SwiftyUserDefaults.swift */; };
-		0CDAEED91AA0B6E200D66158 /* RulerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDAEED51AA0B6E200D66158 /* RulerView.swift */; };
-		0CDAEEDA1AA0B6E200D66158 /* ScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDAEED61AA0B6E200D66158 /* ScrollView.swift */; };
-		0CDAEEDB1AA0B6E200D66158 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDAEED71AA0B6E200D66158 /* TextView.swift */; };
-		0CDAEEDC1AA0B6E200D66158 /* TextViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDAEED81AA0B6E200D66158 /* TextViewDelegate.swift */; };
+		0CFB01041AA2398A0096EDB4 /* RulerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CFB01001AA2398A0096EDB4 /* RulerView.swift */; };
+		0CFB01051AA2398A0096EDB4 /* ScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CFB01011AA2398A0096EDB4 /* ScrollView.swift */; };
+		0CFB01061AA2398A0096EDB4 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CFB01021AA2398A0096EDB4 /* TextView.swift */; };
+		0CFB01071AA2398A0096EDB4 /* TextViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CFB01031AA2398A0096EDB4 /* TextViewDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,10 +44,10 @@
 		0C8F14A21A98D4EF00751B8A /* Parser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
 		0C8F14A61A9A86CD00751B8A /* Tree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tree.swift; sourceTree = "<group>"; };
 		0CB77A111AA1460000692316 /* SwiftyUserDefaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftyUserDefaults.swift; sourceTree = "<group>"; };
-		0CDAEED51AA0B6E200D66158 /* RulerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RulerView.swift; path = ../../SwiftEdit/SwiftEdit/RulerView.swift; sourceTree = "<group>"; };
-		0CDAEED61AA0B6E200D66158 /* ScrollView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ScrollView.swift; path = ../../SwiftEdit/SwiftEdit/ScrollView.swift; sourceTree = "<group>"; };
-		0CDAEED71AA0B6E200D66158 /* TextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TextView.swift; path = ../../SwiftEdit/SwiftEdit/TextView.swift; sourceTree = "<group>"; };
-		0CDAEED81AA0B6E200D66158 /* TextViewDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TextViewDelegate.swift; path = ../../SwiftEdit/SwiftEdit/TextViewDelegate.swift; sourceTree = "<group>"; };
+		0CFB01001AA2398A0096EDB4 /* RulerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RulerView.swift; sourceTree = "<group>"; };
+		0CFB01011AA2398A0096EDB4 /* ScrollView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScrollView.swift; sourceTree = "<group>"; };
+		0CFB01021AA2398A0096EDB4 /* TextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
+		0CFB01031AA2398A0096EDB4 /* TextViewDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextViewDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,10 +129,10 @@
 		0C4BB6B51A950F7800FCEC1F /* View */ = {
 			isa = PBXGroup;
 			children = (
-				0CDAEED51AA0B6E200D66158 /* RulerView.swift */,
-				0CDAEED61AA0B6E200D66158 /* ScrollView.swift */,
-				0CDAEED71AA0B6E200D66158 /* TextView.swift */,
-				0CDAEED81AA0B6E200D66158 /* TextViewDelegate.swift */,
+				0CFB01001AA2398A0096EDB4 /* RulerView.swift */,
+				0CFB01011AA2398A0096EDB4 /* ScrollView.swift */,
+				0CFB01021AA2398A0096EDB4 /* TextView.swift */,
+				0CFB01031AA2398A0096EDB4 /* TextViewDelegate.swift */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -262,13 +262,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				0C8F14A71A9A86CD00751B8A /* Tree.swift in Sources */,
+				0CFB01061AA2398A0096EDB4 /* TextView.swift in Sources */,
+				0CFB01051AA2398A0096EDB4 /* ScrollView.swift in Sources */,
+				0CFB01071AA2398A0096EDB4 /* TextViewDelegate.swift in Sources */,
+				0CFB01041AA2398A0096EDB4 /* RulerView.swift in Sources */,
 				0C8F14A31A98D4EF00751B8A /* Parser.swift in Sources */,
-				0CDAEED91AA0B6E200D66158 /* RulerView.swift in Sources */,
 				0C4BB6B91A95104800FCEC1F /* Lexer.swift in Sources */,
 				0C2515D61A7AA65000A78055 /* AppDelegate.swift in Sources */,
-				0CDAEEDA1AA0B6E200D66158 /* ScrollView.swift in Sources */,
-				0CDAEEDC1AA0B6E200D66158 /* TextViewDelegate.swift in Sources */,
-				0CDAEEDB1AA0B6E200D66158 /* TextView.swift in Sources */,
 				0CB77A121AA1460000692316 /* SwiftyUserDefaults.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

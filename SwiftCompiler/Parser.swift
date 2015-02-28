@@ -101,6 +101,7 @@ class Parser {
     }
     
     func program(){
+        
         block()
         matchToken(TokenType.t_eof)
     }
@@ -241,6 +242,10 @@ class Parser {
     
     func intop(){
         matchToken(TokenType.t_intop)
+    }
+    
+    func nonterminal(type:GrammarType){
+//        currentNode?.addChild(value:Grammar(token: nil, type: GrammarCategory.Nonterminal)))
     }
     
     func matchToken(type: TokenType){
