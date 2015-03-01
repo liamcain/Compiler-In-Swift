@@ -62,16 +62,18 @@ prefix func ~/(pattern: String) -> NSRegularExpression {
 class Lexer {
     
     var console: NSTextView?
-    var tokenStream: [Token]? = []
+    var tokenStream: [Token]?
     var lineNum: Int = 1;
     var linePos: Int = 1;
     
-    let reservedWords: Dictionary<String, TokenType> = ["if":TokenType.t_if,
+    let reservedWords: Dictionary<String, TokenType> = [
+        "if":TokenType.t_if,
         "while":TokenType.t_while,
         "print":TokenType.t_print,
         "int":TokenType.t_type,
         "char":TokenType.t_type,
         "string":TokenType.t_type,
+        "boolean":TokenType.t_type,
         "false":TokenType.t_boolval,
         "true":TokenType.t_boolval ]
     
@@ -108,6 +110,7 @@ class Lexer {
     
     func lex(input: String) -> [Token]? {
         var lexState: LexState = LexState.Default
+        tokenStream = []
         let arr = Array(input)
         let quote = "\""
         var i: Int = 0;
@@ -146,6 +149,9 @@ class Lexer {
                 switch s {
                     case "$":
                         createToken(s, type: TokenType.t_eof)
+                        if i < count(arr){
+                            log("Unreachable code. All code after the $ has been ignored.",type:LogType.Warning)
+                        }
                         return tokenStream
                     case "\n":
                         ++lineNum

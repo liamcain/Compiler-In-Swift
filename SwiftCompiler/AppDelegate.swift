@@ -19,9 +19,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var textView: NSTextView { return inputScrollView!.contentView.documentView as! NSTextView }
     @IBOutlet var console: NSTextView?
     var rulerView: RulerView?
-    
-    @IBOutlet weak var compileButton: NSButton!
-    
     var lexer: Lexer?
     var parser: Parser?
     var snippets: Dictionary<String, String> = Dictionary()
@@ -42,6 +39,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     func compile(){
+        console!.textStorage?.setAttributedString(NSAttributedString(string: ""))
+        
         // -- LEX --------------------------------------
         log("Starting Lex Phase...")
         let tokenStream = lexer?.lex(textView.string!)

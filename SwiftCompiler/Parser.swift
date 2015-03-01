@@ -92,7 +92,7 @@ class Parser {
     
     func parse(tokenStream: [Token]) -> Tree<Grammar>? {
         self.tokenStream = tokenStream
-        print(tokenStream)
+        index = 0
         if self.tokenStream != nil && count(self.tokenStream!) > 0 {
             nextToken = self.tokenStream![0]
             program()
@@ -101,15 +101,16 @@ class Parser {
     }
     
     func program(){
-        
         block()
         matchToken(TokenType.t_eof)
     }
     
     func block(){
-        matchToken(TokenType.t_braceL)
-        statementList()
-        matchToken(TokenType.t_braceR)
+        if nextToken != nil {
+            matchToken(TokenType.t_braceL)
+            statementList()
+            matchToken(TokenType.t_braceR)
+        }
     }
     
     func statementList(){
@@ -120,7 +121,9 @@ class Parser {
     }
     
     func statement(){
-        if nextToken?.type == TokenType.t_print {
+        if nextToken == nil {
+            return
+        } else if nextToken?.type == TokenType.t_print {
             printStatement()
         } else if nextToken?.type == TokenType.t_identifier {
             assignmentStatement()
@@ -134,21 +137,24 @@ class Parser {
             block()
         } else {
             log("Expected the start of a new statement. Instead found \(nextToken!.str)", type:LogType.Error)
-            nextToken = nil
         }
     }
     
     func printStatement(){
-        matchToken(TokenType.t_print)
-        matchToken(TokenType.t_parenL)
-        expr()
-        matchToken(TokenType.t_parenR)
+        if nextToken != nil {
+            matchToken(TokenType.t_print)
+            matchToken(TokenType.t_parenL)
+            expr()
+            matchToken(TokenType.t_parenR)
+        }
     }
     
     func assignmentStatement(){
-        id()
-        matchToken(TokenType.t_assign)
-        expr()
+        if nextToken != nil {
+            id()
+            matchToken(TokenType.t_assign)
+            expr()
+        }
     }
     
     func varDecl(){
@@ -169,16 +175,18 @@ class Parser {
     }
     
     func expr(){
-        if nextToken?.type == TokenType.t_digit {
+        if nextToken == nil {
+            return
+        } else if nextToken?.type == TokenType.t_digit {
             intExpr()
         } else if nextToken?.type == TokenType.t_quote {
             stringExpr()
-        } else if nextToken?.type == TokenType.t_parenL {
+        } else if nextToken?.type == TokenType.t_parenL || nextToken?.type == TokenType.t_boolval {
             booleanExpr()
         } else if nextToken?.type == TokenType.t_identifier {
             id()
         } else {
-            log("Expecting expression. Instead found \(nextToken)", type:LogType.Error)
+            log("Expecting expression. Instead found \(nextToken!.str)", type:LogType.Error)
         }
     }
     
@@ -255,10 +263,12 @@ class Parser {
             ++index
             if index < count(tokenStream!) {
                 nextToken = tokenStream![index]
+            } else {
+                nextToken = nil
             }
         } else {
             if let nextType = nextToken?.type.rawValue {
-                log("Expected \(type.rawValue). Found \(nextType)", type:LogType.Error)
+                log("Expected \(type.rawValue). Found '\(nextToken!.str)'", type:LogType.Error)
             }
             nextToken = nil
         }
