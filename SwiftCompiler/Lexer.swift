@@ -10,24 +10,24 @@ import Foundation
 import Cocoa
 
 public enum TokenType: String {
-    case t_identifier = "t_identifier"
-    case t_type = "t_type"
-    case t_if = "t_if"
-    case t_while = "t_while"
-    case t_print = "t_print"
-    case t_string = "t_string"
-    case t_digit = "t_digit"
-    case t_parenL = "t_parenL"
-    case t_parenR = "t_parenR"
-    case t_operator = "t_operator"
-    case t_boolop = "t_boolop"
-    case t_assign = "t_assign"
-    case t_boolval = "t_boolval"
-    case t_intop = "t_intop"
-    case t_quote = "t_quote"
-    case t_braceL = "t_braceL"
-    case t_braceR = "t_braceR"
-    case t_eof = "t_eof"
+    case t_identifier = "identifier"
+    case t_type = "type"
+    case t_if = "if"
+    case t_while = "while"
+    case t_print = "print"
+    case t_string = "string"
+    case t_digit = "digit"
+    case t_parenL = "left parentheses"
+    case t_parenR = "right parentheses"
+    case t_operator = "operator"
+    case t_boolop = "boolean operator"
+    case t_assign = "assignment"
+    case t_boolval = "boolean value"
+    case t_intop = "int operator"
+    case t_quote = "quote"
+    case t_braceL = "left brace"
+    case t_braceR = "right brace"
+    case t_eof = "end of file"
 }
 
 public enum LogType {
@@ -81,30 +81,31 @@ class Lexer {
         console = outputView
     }
     
-    func log(output: String, type: LogType){
+    func log(string:String, color: NSColor) {
+        let attributedString = NSAttributedString(string: string, attributes: [NSForegroundColorAttributeName: color])
+        console!.textStorage?.appendAttributedString(attributedString)
+    }
+    
+    func log(output: String, type: LogType, tokenType:TokenType?=nil){
         var finalOutput = output
         var attributes: [NSObject : AnyObject]
         switch type {
-            case LogType.Error:
-                finalOutput = "[Lex Error at position \(lineNum):\(linePos)] " + output
-                attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.9, green: 0.4, blue: 0.4, alpha: 1.0),
-                              NSUnderlineStyleAttributeName: NSUnderlineStyleSingle]
-            case LogType.Warning:
-                finalOutput = "[Lex Warning] " + output
-                attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)]
-            case LogType.Match:
-                finalOutput = "[Token] " + output
-                attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.9, green: 0.9, blue: 0.3, alpha: 1.0)]
+            case .Error:
+                log("[Lex Error at position \(lineNum):\(linePos)] ", color: errorColor())
+                log(output+"\n", color: mutedColor())
+            case .Warning:
+                log("[Lex Warning at position \(lineNum):\(linePos)] ", color: warningColor())
+                log(output+"\n", color: mutedColor())
+            case .Match:
+                log(output, color:mutedColor())
+                log("[\(tokenType!.rawValue)]\n", color: matchColor())
             default:
-                attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)]
+                log(output, color: mutedColor())
         }
-        var str: NSAttributedString = NSAttributedString(string: (finalOutput + "\n"), attributes: attributes)
-        console!.textStorage?.appendAttributedString(str)
-        console?.scrollToEndOfDocument(self)
     }
     
     func createToken(str: String, type: TokenType){
-        log(str, type: LogType.Match)
+        log("Lexing:  \(str)   \t... ", type: LogType.Match, tokenType:type)
         tokenStream!.append(Token(str: str, type: type, position:(lineNum,linePos)))
     }
     
@@ -129,7 +130,7 @@ class Lexer {
             s2 = String(arr[forward])
             
             switch lexState {
-            case LexState.Searching:
+            case .Searching:
                 switch s2 {
                 case ~/"[a-z]":
                     var tokenSoFar = String(arr[i...forward]);
@@ -145,19 +146,19 @@ class Lexer {
                     lexState = LexState.Default
                     createToken(s, type:TokenType.t_identifier)
                 }
-            case LexState.Default:
+            case .Default:
                 switch s {
                     case "$":
                         createToken(s, type: TokenType.t_eof)
-                        if i < count(arr){
-                            log("Unreachable code. All code after the $ has been ignored.",type:LogType.Warning)
+                        if i < count(arr) - 1{
+                            log("Unreachable code. All code after the '$' has been ignored.",type:LogType.Warning)
                         }
                         return tokenStream
                     case "\n":
                         ++lineNum
                         linePos = 0
                     case ~/"[\\s\\t]":
-                        println("ignore whitespace")
+                        break
                     case quote:
                         lexState = LexState.String
                         createToken(s, type:TokenType.t_quote)
@@ -195,7 +196,7 @@ class Lexer {
                         log("Unknown char \(s)", type:LogType.Error)
                         return nil
                 }
-            case LexState.String:
+            case .String:
                 switch s {
                     case quote:
                         createToken(s, type:TokenType.t_quote)
@@ -214,8 +215,8 @@ class Lexer {
                 }
             }
             if lexState != LexState.Searching {
-                ++i
-                ++linePos
+                i++
+                linePos++
             }
         }
     }

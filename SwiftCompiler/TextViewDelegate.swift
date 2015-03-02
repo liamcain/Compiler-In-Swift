@@ -13,6 +13,8 @@ let HMTabWidth = 4
 class TextViewDelegate: NSObject {
     var isDeleting = false
     
+    
+    
     func textView(textView: NSTextView!, doCommandBySelector commandSelector: Selector) -> Bool {
         switch commandSelector {
         case "deleteBackward:":

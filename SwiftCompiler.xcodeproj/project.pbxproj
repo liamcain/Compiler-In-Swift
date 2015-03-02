@@ -11,6 +11,8 @@
 		0C2515D81A7AA65000A78055 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0C2515D71A7AA65000A78055 /* Images.xcassets */; };
 		0C2515DB1A7AA65000A78055 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0C2515D91A7AA65000A78055 /* MainMenu.xib */; };
 		0C2515E71A7AA65000A78055 /* SwiftCompilerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2515E61A7AA65000A78055 /* SwiftCompilerTests.swift */; };
+		0C2A7B391AA4134800006D9C /* test-cases.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0C2A7B381AA4134800006D9C /* test-cases.plist */; };
+		0C2A7B3B1AA4E35300006D9C /* Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2A7B3A1AA4E35300006D9C /* Helper.swift */; };
 		0C4BB6B91A95104800FCEC1F /* Lexer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4BB6B81A95104800FCEC1F /* Lexer.swift */; };
 		0C8F14A31A98D4EF00751B8A /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C8F14A21A98D4EF00751B8A /* Parser.swift */; };
 		0C8F14A71A9A86CD00751B8A /* Tree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C8F14A61A9A86CD00751B8A /* Tree.swift */; };
@@ -40,6 +42,8 @@
 		0C2515E01A7AA65000A78055 /* SwiftCompilerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftCompilerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0C2515E51A7AA65000A78055 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0C2515E61A7AA65000A78055 /* SwiftCompilerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftCompilerTests.swift; sourceTree = "<group>"; };
+		0C2A7B381AA4134800006D9C /* test-cases.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "test-cases.plist"; sourceTree = "<group>"; };
+		0C2A7B3A1AA4E35300006D9C /* Helper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Helper.swift; sourceTree = "<group>"; };
 		0C4BB6B81A95104800FCEC1F /* Lexer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Lexer.swift; sourceTree = "<group>"; };
 		0C8F14A21A98D4EF00751B8A /* Parser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
 		0C8F14A61A9A86CD00751B8A /* Tree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tree.swift; sourceTree = "<group>"; };
@@ -105,6 +109,7 @@
 			isa = PBXGroup;
 			children = (
 				0C2515D41A7AA65000A78055 /* Info.plist */,
+				0C2A7B381AA4134800006D9C /* test-cases.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -158,6 +163,7 @@
 			isa = PBXGroup;
 			children = (
 				0CB77A111AA1460000692316 /* SwiftyUserDefaults.swift */,
+				0C2A7B3A1AA4E35300006D9C /* Helper.swift */,
 			);
 			name = Helpers;
 			sourceTree = "<group>";
@@ -244,6 +250,7 @@
 			files = (
 				0C2515D81A7AA65000A78055 /* Images.xcassets in Resources */,
 				0C2515DB1A7AA65000A78055 /* MainMenu.xib in Resources */,
+				0C2A7B391AA4134800006D9C /* test-cases.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -268,6 +275,7 @@
 				0CFB01041AA2398A0096EDB4 /* RulerView.swift in Sources */,
 				0C8F14A31A98D4EF00751B8A /* Parser.swift in Sources */,
 				0C4BB6B91A95104800FCEC1F /* Lexer.swift in Sources */,
+				0C2A7B3B1AA4E35300006D9C /* Helper.swift in Sources */,
 				0C2515D61A7AA65000A78055 /* AppDelegate.swift in Sources */,
 				0CB77A121AA1460000692316 /* SwiftyUserDefaults.swift in Sources */,
 			);

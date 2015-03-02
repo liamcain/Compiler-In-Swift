@@ -8,33 +8,51 @@
 
 import Cocoa
 
+extension Dictionary {
+    mutating func merge<K, V>(dict: [K: V]){
+        for (k, v) in dict {
+            self.updateValue(v as! Value, forKey: k as! Key)
+        }
+    }
+}
+
 @NSApplicationMain
-class AppDelegate: NSObject, NSApplicationDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOutlineViewDataSource {
 
     @IBOutlet weak var window: NSWindow!
     @IBOutlet weak var splitView: NSSplitView!
     @IBOutlet weak var inputScrollView: ScrollView!
     @IBOutlet weak var outputScrollView: NSScrollView!
-    @IBOutlet weak var snippetsMenu: NSMenu!
-    var textView: NSTextView { return inputScrollView!.contentView.documentView as! NSTextView }
+
+    @IBOutlet weak var defaultSnippetsMenu: NSMenu!
+    @IBOutlet weak var customSnippetsMenu: NSMenu!
+
+    
+    @IBOutlet weak var cursorPosLabel: NSTextField!
     @IBOutlet var console: NSTextView?
+    
+    var textView: NSTextView { return inputScrollView!.contentView.documentView as! NSTextView }
+    
     var rulerView: RulerView?
     var lexer: Lexer?
     var parser: Parser?
-    var snippets: Dictionary<String, String> = Dictionary()
+    var tokenStream: [Token]?
+    var defaultSnippets: Dictionary<String, String> = Dictionary()
+    var customSnippets: Dictionary<String, String>  = Dictionary()
 
     @IBAction func createSnippetPressed(sender: AnyObject) {
-        let name = "Test Case \(snippets.count)"
-        snippetsMenu.addItem(NSMenuItem(title: name, action: Selector("insertSnippet:"), keyEquivalent: ""))
-        snippets[name] = textView.string!
-        Defaults["snippets"] = snippets
+        let name = "Test Case \(customSnippets.count)"
+        customSnippetsMenu.addItem(NSMenuItem(title: name, action: Selector("insertSnippet:"), keyEquivalent: ""))
+        customSnippets[name] = textView.string!
+        Defaults["snippets"] = customSnippets
         Defaults.synchronize()
-//        Defaults["Snippets"].dictionary!["Test"] = textView.string!
     }
+
     @IBAction func compileMenuItemPressed(sender: AnyObject) {
         compile()
     }
-    @IBAction func compilePressed(sender: NSButton) {
+
+    @IBAction func compileButtonPressed(sender: AnyObject) {
         compile()
     }
     
@@ -43,51 +61,62 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // -- LEX --------------------------------------
         log("Starting Lex Phase...")
-        let tokenStream = lexer?.lex(textView.string!)
+        tokenStream = lexer?.lex(textView.string!)
         if tokenStream == nil {
-            log("Lex failed. Exiting.")
+            log("*Lex failed. Exiting.*")
             return
         }
-        log("Lex successful.\n")
+        log("*Lex successful.*\n")
         
         
         // -- PARSE ------------------------------------
         log("Starting Parse Phase...")
         let cst = parser!.parse(tokenStream!)
         if cst == nil {
-            log("Parse failed. Exiting.")
+            log("*Parse failed. Exiting.*")
         }
-        log("Parse successful. That's all for now.")
+        log("*Parse successful. That's all for now.*")
     }
     
     func log(output: String){
-        let attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)]
+        let attributes = [NSForegroundColorAttributeName: matchColor()]
         var str: NSAttributedString = NSAttributedString(string: (output + "\n"), attributes: attributes)
         console!.textStorage?.appendAttributedString(str)
     }
     
     func insertSnippet(sender: AnyObject){
-        let str = (sender as! NSMenuItem).title
+        let menuItem = (sender as! NSMenuItem)
+        let str = menuItem.title
         
-        textView.insertText(snippets[str]!)
+        if menuItem.menu?.title == "Custom Snippets" {
+            textView.insertText(customSnippets[str]!)
+        } else {
+            textView.insertText(defaultSnippets[str]!)
+        }
+        
+        
     }
     
     func populateSnippetsMenu() {
-        for (key, value) in snippets {
-            snippetsMenu.addItem(NSMenuItem(title: key, action: Selector("insertSnippet:"), keyEquivalent: ""))
+        var myDict: NSDictionary?
+        if let path = NSBundle.mainBundle().pathForResource("test-cases", ofType: "plist") {
+            defaultSnippets = NSDictionary(contentsOfFile: path) as! Dictionary<String, String>
+        }
+        if count(defaultSnippets) > 0 {
+            for (key, value) in defaultSnippets {
+                defaultSnippetsMenu.addItem(NSMenuItem(title: key, action: Selector("insertSnippet:"), keyEquivalent: ""))
+            }
+        }
+        
+        for (key, value) in customSnippets {
+            customSnippetsMenu.addItem(NSMenuItem(title: key, action: Selector("insertSnippet:"), keyEquivalent: ""))
         }
     }
     
     func applicationDidFinishLaunching(aNotification: NSNotification) {
-        // Insert code here to initialize your application
         let textView = self.textView
         lexer = Lexer(outputView: console)
         parser = Parser(outputView: console)
-        
-        if Defaults["snippets"].dictionary != nil {
-            snippets = Defaults["snippets"].dictionary as! Dictionary<String, String>
-            populateSnippetsMenu()
-        }
         
         textView.translatesAutoresizingMaskIntoConstraints = true
         textView.textContainerInset = NSMakeSize(0,1)
@@ -100,12 +129,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         inputScrollView!.hasHorizontalRuler = false
         inputScrollView!.hasVerticalRuler = true
         inputScrollView!.rulersVisible = true
-        
         console!.drawsBackground = true
         console!.editable = false
         console!.backgroundColor = NSColor(calibratedRed: 0.2, green: 0.2, blue: 0.25, alpha: 1.0)
         
-        
+        populateSnippetsMenu()
+    }
+    
+    func textDidChange(){
+        let pos = textView.selectedRange().location
+        var col: Int = 1, line = 1
+        var char: Character! = nil
+        let chars = Array(textView.string!)
+        for var i = 0; i < pos; i++ {
+            char = chars[i]
+            if char == "\n" {
+                line++
+                col = 1
+            } else {
+                col++
+            }
+        }
+        cursorPosLabel.stringValue = "Line \(line), Column \(col)"
     }
 
     func applicationWillTerminate(aNotification: NSNotification) {

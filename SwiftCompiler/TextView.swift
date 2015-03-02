@@ -39,6 +39,8 @@ class TextView: NSTextView {
     
     func selectionDidChange(notification: NSNotification) {
         needsDisplay = true
+        let delegate: AppDelegate = NSApplication.sharedApplication().delegate as! AppDelegate
+        delegate.textDidChange()
     }
     
     override func drawRect(dirtyRect: NSRect) {
@@ -61,21 +63,6 @@ class TextView: NSTextView {
             NSColor(calibratedRed: 0.992, green: 1.000, blue: 0.800, alpha: 1).setFill()
             NSRectFill(rectForRange(lineRange))
         }
-    }
-    
-    func drawPageGuideBackgroundAt(position: CGFloat) {
-        NSColor(calibratedRed: 0.988 , green: 0.988 , blue: 0.988 , alpha: 1).set()
-        NSRectFill(NSMakeRect(position, bounds.origin.y,
-            bounds.size.width - position, bounds.size.height))
-    }
-    
-    func drawPageGuideLineAt(position: CGFloat) {
-        NSColor(calibratedRed: 0.863, green: 0.859, blue: 0.863, alpha: 1).set()
-        let line = NSBezierPath()
-        line.moveToPoint(NSPoint(x: position, y: 0))
-        line.lineToPoint(NSPoint(x: position, y: bounds.size.height))
-        line.lineWidth = 1.0
-        line.stroke()
     }
     
     func rectForRange(range: NSRange) -> NSRect {

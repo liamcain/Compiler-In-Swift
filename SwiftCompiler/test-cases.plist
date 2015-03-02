@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Print - Easy</key>
+	<string>{print(false)}$</string>
+	<key>Print - Medium</key>
+	<string>{print(&quot;inta&quot;)}$</string>
+	<key>Print - Hard</key>
+	<string>{
+a=1+2+3+4+5
+print(a)
+print(7)
+print(7+a)
+print(&quot;&quot;)
+print(&quot;aa&quot;)
+print(&quot;inta&quot;)
+print(1+2+3+4+5) 
+print(false)
+print(true)
+}$</string>
+	<key>Multi-Block</key>
+	<string>{
+int a
+a = 0 
+string z
+z = &quot;bond&quot; 
+while (a != 9) {
+if (a != 5) {
+print(&quot;bond&quot;)
+}
+{
+a = 1 + a
+string b
+b = &quot;james bond&quot;
+print(b)
+}
+} 
+{}
+boolean c
+c = true 
+boolean d
+d = (true == (true == false))
+d = (a == b)
+d = (1 == a)
+d = (1 != 1)
+d = (&quot;string&quot; == 1)
+d = (a != &quot;string&quot;)
+d = (&quot;string&quot; != &quot;string&quot;) 
+if (d == true) {
+int c
+c = 1 + d
+if (c == 1) {
+print(&quot;ugh&quot;)
+}
+} 
+while (&quot;string&quot; == a) {
+while (1 == true) {
+a = 1 + &quot;string&quot;
+}
+}
+}$</string>
+	<key>Empty Block</key>
+	<string>{}</string>
+	<key>Extraneous Code</key>
+	<string>{print(2)}$extra code</string>
+	<key>Nested Blocks</key>
+	<string>{{{{{a=1+2+3+4+5{print(4+a)}}}}}}}$</string>
+	<key>Fake Print Block</key>
+	<string>print(a){print(a)}$</string>
+	<key>Fake While Loop</key>
+	<string>{
+while &quot;a&quot; {
+print ( &quot;a&quot; )
+} 
+print ( &quot;done&quot; )
+}$</string>
+	<key>Broken Boolean Expression</key>
+	<string>{
+int a
+a == 6
+}$</string>
+	<key>Broken If-Statement</key>
+	<string>{
+int a
+a = 1
+if (a == 1 {
+print(while (a == 5) {})
+} $
+}</string>
+	<key>Assignment or If-Statement</key>
+	<string>{intfintif=2}$</string>
+</dict>
+</plist>
