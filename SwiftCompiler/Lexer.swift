@@ -105,7 +105,7 @@ class Lexer {
     }
     
     func createToken(str: String, type: TokenType){
-        log("Lexing:  \(str)      \t... ", type: LogType.Match, tokenType:type)
+        log("Lexing: Found \(str) \t... token identified as ", type: LogType.Match, tokenType:type)
         tokenStream!.append(Token(str: str, type: type, position:(lineNum,linePos)))
     }
     

@@ -85,8 +85,9 @@ class Parser {
             log("[Parse Warning at position \(row):\(col)] ", color: warningColor())
             log(output+"\n", color: mutedColor())
         case .Match:
-            log(output, color:mutedColor())
-            log("Found\n", color: matchColor())
+            log("[Match] ", color: matchColor())
+            log(output+"\n", color:mutedColor())
+            
         default:
             log(output, color: mutedColor())
         }
@@ -260,7 +261,11 @@ class Parser {
     
     func matchToken(type: TokenType){
         if nextToken?.type == type {
-            log("Parsing: \(nextToken!.str)\t\t ... ", type:LogType.Match)
+            log("[Match] ",              color:matchColor())
+            log("Expected token type: ", color:mutedColor())
+            log(type.rawValue,           color:tokenColor())
+            log("  Found: ",               color:mutedColor())
+            log(nextToken!.str + "\n",   color:tokenColor())
             //add token to cs
             ++index
             if index < count(tokenStream!) {

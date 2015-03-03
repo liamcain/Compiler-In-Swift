@@ -123,7 +123,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
 //        textView.font = NSFont.userFixedPitchFontOfSize(NSFont.smallSystemFontSize())
         textView.font = NSFont.userFixedPitchFontOfSize(12.0)
         textView.automaticQuoteSubstitutionEnabled = false
-        
+
         rulerView = RulerView(scrollView: inputScrollView, orientation: NSRulerOrientation.VerticalRuler)
         inputScrollView!.verticalRulerView = rulerView
         inputScrollView!.hasHorizontalRuler = false
