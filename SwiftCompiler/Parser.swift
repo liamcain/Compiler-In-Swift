@@ -66,28 +66,30 @@ class Parser {
         console = outputView
     }
     
-    func log(output: String, type: LogType){
-        
+    func log(string:String, color: NSColor) {
+        let attributedString = NSAttributedString(string: string, attributes: [NSForegroundColorAttributeName: color])
+        console!.textStorage?.appendAttributedString(attributedString)
+    }
+    
+    func log(output: String, type: LogType, token:Token?=nil){
         var finalOutput = output
+        let row = token?.position.0
+        let col = token?.position.1
+        
         var attributes: [NSObject : AnyObject]
         switch type {
-        case LogType.Error:
-            let lineNum = nextToken!.position.0
-            let linePos = nextToken!.position.1
-            finalOutput = "[Parse Error at position \(lineNum):\(linePos)] " + output
-            attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.9, green: 0.4, blue: 0.4, alpha: 1.0)]
-        case LogType.Warning:
-            finalOutput = "[Parse Warning] " + output
-            attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)]
-        case LogType.Match:
-            finalOutput = "[Parse Match] " + output
-            attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.9, green: 0.9, blue: 0.3, alpha: 1.0)]
+        case .Error:
+            log("[Parse Error at position \(row):\(col)] ", color: errorColor())
+            log(output+"\n", color: mutedColor())
+        case .Warning:
+            log("[Parse Warning at position \(row):\(col)] ", color: warningColor())
+            log(output+"\n", color: mutedColor())
+        case .Match:
+            log(output, color:mutedColor())
+            log("Found\n", color: matchColor())
         default:
-            attributes = [NSForegroundColorAttributeName: NSColor(calibratedRed: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)]
+            log(output, color: mutedColor())
         }
-        var str: NSAttributedString = NSAttributedString(string: (finalOutput + "\n"), attributes: attributes)
-        console!.textStorage?.appendAttributedString(str)
-        console?.scrollToEndOfDocument(self)
     }
     
     func parse(tokenStream: [Token]) -> Tree<Grammar>? {
@@ -258,7 +260,7 @@ class Parser {
     
     func matchToken(type: TokenType){
         if nextToken?.type == type {
-            log(type.rawValue, type:LogType.Match)
+            log("Parsing: \(nextToken!.str)\t\t ... ", type:LogType.Match)
             //add token to cs
             ++index
             if index < count(tokenStream!) {
