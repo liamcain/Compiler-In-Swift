@@ -36,6 +36,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
     var rulerView: RulerView?
     var lexer: Lexer?
     var parser: Parser?
+    var analyzer: SemanticAnalysis?
     var tokenStream: [Token]?
     var defaultSnippets: Dictionary<String, String> = Dictionary()
     var customSnippets: Dictionary<String, String>  = Dictionary()
@@ -60,7 +61,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
         console!.textStorage?.setAttributedString(NSAttributedString(string: ""))
         
         // -- LEX --------------------------------------
+        log("-----------------------------")
         log("Starting Lex Phase...")
+        log("-----------------------------")
         tokenStream = lexer?.lex(textView.string!)
         if tokenStream == nil {
             log("*Lex failed. Exiting.*")
@@ -70,15 +73,33 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
         
         
         // -- PARSE ------------------------------------
+        log("-----------------------------")
         log("Starting Parse Phase...")
+        log("-----------------------------")
+        
         let cst = parser!.parse(tokenStream!)
         if cst == nil {
             log("*Parse failed. Exiting.*")
+            return
         }
-        log("*Parse successful. That's all for now.*")
+        log("*Parse successful.*\n")
+        
+        
+        // -- SEMANTIC ANALYSIS ------------------------
+        log("-----------------------------")
+        log("Starting Semantic Analysis...")
+        log("-----------------------------")
+        let ast = analyzer?.analyze(cst!)
+        if ast == nil {
+            log("*Semantic Analysis failed. Exiting.*")
+            return
+        }
+        
+        
     }
     
     func log(output: String){
+        console!.font = NSFont(name: "Menlo", size: 12.0)
         let attributes = [NSForegroundColorAttributeName: matchColor()]
         var str: NSAttributedString = NSAttributedString(string: (output + "\n"), attributes: attributes)
         console!.textStorage?.appendAttributedString(str)
@@ -117,11 +138,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
         let textView = self.textView
         lexer = Lexer(outputView: console)
         parser = Parser(outputView: console)
+        analyzer = SemanticAnalysis(outputView: console)
         
         textView.translatesAutoresizingMaskIntoConstraints = true
         textView.textContainerInset = NSMakeSize(0,1)
 //        textView.font = NSFont.userFixedPitchFontOfSize(NSFont.smallSystemFontSize())
-        textView.font = NSFont.userFixedPitchFontOfSize(12.0)
+        textView.font = NSFont(name: "Menlo", size: 12.0)
         textView.automaticQuoteSubstitutionEnabled = false
         
         rulerView = RulerView(scrollView: inputScrollView, orientation: NSRulerOrientation.VerticalRuler)
@@ -132,7 +154,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
         console!.drawsBackground = true
         console!.editable = false
         console!.backgroundColor = NSColor(calibratedRed: 0.2, green: 0.2, blue: 0.25, alpha: 1.0)
-        
+        console!.textStorage?.font = NSFont(name: "Menlo", size: 22.0)
+        console!.font = NSFont(name: "Menlo", size: 22.0)
+        console?.font = NSFont(name: "Menlo", size: 32.0)
         populateSnippetsMenu()
     }
     

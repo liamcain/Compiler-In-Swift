@@ -14,6 +14,13 @@ enum GrammarCategory {
     case Nonterminal
 }
 
+enum VarType {
+    case None
+    case Int
+    case Boolean
+    case String
+}
+
 enum GrammarType: String {
     case Program = "Program"
     case Block = "Block"
@@ -44,7 +51,7 @@ class Grammar {
     
     var token: Token?
     var type :GrammarType?
-    func description() -> String {
+    var description: String {
         if token != nil {
             return token!.str
         } else if (type != nil) {
@@ -66,12 +73,15 @@ class Grammar {
 
 class Parser {
     
+    // Views
     weak var outputView: NSScrollView?
+    var console: NSTextView?
+    
+    // Model
     var tokenStream: [Token]?
     var index: Int = 0
     var cst: GrammarTree?
     var nextToken: Token?
-    var console: NSTextView?
     
     init(outputView: NSTextView?){
         cst = GrammarTree()
@@ -80,6 +90,7 @@ class Parser {
     }
     
     func log(string:String, color: NSColor) {
+        console!.font = NSFont(name: "Menlo", size: 12.0)
         let attributedString = NSAttributedString(string: string, attributes: [NSForegroundColorAttributeName: color])
         console!.textStorage?.appendAttributedString(attributedString)
     }
@@ -312,7 +323,7 @@ class Parser {
     }
     
     func addLeafNode(token: Token){
-        cst!.addNode(Grammar(token: token))
+        cst!.addGrammar(Grammar(token: token))
     }
     
     func returnToParentNode(){

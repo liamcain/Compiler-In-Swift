@@ -30,6 +30,23 @@ public enum TokenType: String {
     case t_eof = "end of file"
 }
 
+//public enum Type: String {
+//    
+//    public enum Kind {
+//        case NonTerminal
+//        case Terminal
+//    }
+//    
+//    var kind: Kind {
+//        switch self {
+//        case t_digit, t_parenL, t_parenR, t_operator, t_boolop, t_assign, t_boolval, t_intop, t_quote, t_braceL, t_braceR, t_eof:
+//            return Kind.Terminal
+//        default:
+//            return Kind.NonTerminal
+//        }
+//    }
+//}
+
 public enum LogType {
     case Message
     case Match
@@ -82,6 +99,7 @@ class Lexer {
     }
     
     func log(string:String, color: NSColor) {
+        console!.font = NSFont(name: "Menlo", size: 12.0)
         let attributedString = NSAttributedString(string: string, attributes: [NSForegroundColorAttributeName: color])
         console!.textStorage?.appendAttributedString(attributedString)
     }

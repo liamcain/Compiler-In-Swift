@@ -50,36 +50,41 @@ class Tree<T> {
 
 class GrammarTree {
     
-    var tree: Tree<Grammar>
+    var root: Node<Grammar>?
     var cur:  Node<Grammar>?
     
     init(){
-        tree = Tree()
+        root = nil
         self.cur  = nil
     }
     
-    init(root: Grammar) {
-        tree = Tree(root:root)
-        cur = tree.root!
+    init(rootValue: Grammar) {
+        root = Node<Grammar>(t:rootValue)
+        cur = root
     }
     
     func addBranch(value: Grammar){
-        var node = addNode(value)
+        var node = addGrammar(value)
         cur = node
     }
     
-    func addNode(value: Grammar) -> Node<Grammar> {
+    func addChild(node: Node<Grammar>){
+        addGrammar(node.value)
+    }
+    
+    func addGrammar(value: Grammar) -> Node<Grammar> {
         var node: Node<Grammar> = Node(t: value)
         
-        if(tree.root == nil){
-            tree.root = node
+        if(root == nil){
+            root = node
         } else {
-            node.parent = self.cur;
-            self.cur?.addChild(node)
+            node.parent = cur;
+            cur?.addChild(node)
         }
         return node
     }
     
+    // Only used for display purposes
     func expand(node: Node<Grammar>, depth: Int){
         // Space out based on the current depth so
         // this looks at least a little tree-like.
@@ -91,12 +96,12 @@ class GrammarTree {
         if (count(node.children) == 0){
             // ... note the leaf node.
             print("[")
-            print(node.value.description())
+            print(node.value.description)
             println("]")
         } else {
             // There are children, so note these interior/branch nodes and ...
             print("<")
-            print(node.value.description())
+            print(node.value.description)
             println(">")
             // .. recursively expand them.
             for (var i = 0; i < node.children.count; i++)
@@ -113,7 +118,7 @@ class GrammarTree {
         // Recursive function to handle the expansion of the nodes.
         
         // Make the initial call to expand from the root.
-        expand(tree.root!, depth: 0);
+        expand(root!, depth: 0);
         // Return the result.
         return traversalResult;
     }

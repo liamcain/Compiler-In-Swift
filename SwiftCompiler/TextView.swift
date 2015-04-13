@@ -13,7 +13,6 @@ class TextView: NSTextView {
     var guidePosition : CGFloat = 0
     var currentColumn : Int = 0
 //    var fixedFont = NSFont.userFixedPitchFontOfSize(NSFont.smallSystemFontSize())
-    var fixedFont = NSFont.userFixedPitchFontOfSize(12.0)
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
