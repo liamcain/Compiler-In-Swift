@@ -89,12 +89,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
         log("-----------------------------")
         log("Starting Semantic Analysis...")
         log("-----------------------------")
-        let ast = analyzer?.analyze(cst!)
+        let ast = analyzer!.analyze(cst!)
         if ast == nil {
             log("*Semantic Analysis failed. Exiting.*")
             return
         }
-        
         
     }
     

@@ -14,11 +14,11 @@ enum GrammarCategory {
     case Nonterminal
 }
 
-enum VarType {
-    case None
-    case Int
-    case Boolean
-    case String
+enum VarType: String {
+    case None = "None"
+    case Int = "Int"
+    case Boolean = "Boolean"
+    case String = "String"
 }
 
 enum GrammarType: String {
@@ -49,8 +49,9 @@ enum GrammarType: String {
 
 class Grammar {
     
-    var token: Token?
-    var type :GrammarType?
+    var token: Token?      // For leaf nodes
+    var type :GrammarType? // For branch nodes
+    
     var description: String {
         if token != nil {
             return token!.str
@@ -82,11 +83,13 @@ class Parser {
     var index: Int = 0
     var cst: GrammarTree?
     var nextToken: Token?
+    var hasError: Bool
     
     init(outputView: NSTextView?){
-        cst = GrammarTree()
-        nextToken = nil
+//        cst = GrammarTree()
+//        nextToken = nil
         console = outputView
+        hasError = false
     }
     
     func log(string:String, color: NSColor) {
@@ -105,6 +108,7 @@ class Parser {
         case .Error:
             log("[Parse Error at position \(row):\(col)] ", color: errorColor())
             log(output+"\n", color: mutedColor())
+            hasError = true
         case .Warning:
             log("[Parse Warning at position \(row):\(col)] ", color: warningColor())
             log(output+"\n", color: mutedColor())
@@ -117,14 +121,22 @@ class Parser {
     }
     
     func parse(tokenStream: [Token]) -> GrammarTree? {
+        cst = GrammarTree()
+        hasError = false
+        nextToken = nil
         self.tokenStream = tokenStream
         index = 0
         if self.tokenStream != nil && count(self.tokenStream!) > 0 {
             nextToken = self.tokenStream![0]
             program()
         }
-        cst?.showTree()
-        return cst
+        
+        if !hasError {
+            cst?.showTree()
+            return cst
+        } else {
+            return nil
+        }
     }
     
     func program(){
@@ -147,16 +159,17 @@ class Parser {
     func statementList(){
         addBranchNode(GrammarType.StatementList)
         if nextToken != nil && nextToken?.type != TokenType.t_braceR {
-            statement()
-            statementList()
+            if statement() {
+                statementList()
+            }
         }
         returnToParentNode()
     }
     
-    func statement(){
+    func statement() -> Bool {
         addBranchNode(GrammarType.Statement)
         if nextToken == nil {
-            return
+            return true
         } else if nextToken?.type == TokenType.t_print {
             printStatement()
         } else if nextToken?.type == TokenType.t_identifier {
@@ -171,8 +184,10 @@ class Parser {
             block()
         } else {
             log("Expected the start of a new statement. Instead found \(nextToken!.str)", type:LogType.Error)
+            return false
         }
         returnToParentNode()
+        return true
     }
     
     func printStatement(){

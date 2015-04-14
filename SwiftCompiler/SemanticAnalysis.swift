@@ -20,7 +20,7 @@ class Symbol {
 }
 
 class Scope {
-    var parentScope: Scope?
+    weak var parentScope: Scope?
     var children: [Scope]?
     var symbols: Dictionary<String, Symbol>
     
@@ -49,8 +49,13 @@ class Scope {
         }
     }
     
-    func getSymbol(symName: String) -> Symbol? {
-        return getSymbol(self, name:symName)
+    func getSymbol(symName: String, recurse:Bool=true) -> Symbol? {
+        if recurse {
+            return getSymbol(self, name:symName)
+        } else {
+            return symbols[symName]
+        }
+        
     }
     
     func getSymbol(scope: Scope, name: String) -> Symbol? {
@@ -73,10 +78,12 @@ class SemanticAnalysis {
     //models
     var symbolTable: Scope?
     var ast: GrammarTree?
-    var currentScope: Scope?
+    weak var currentScope: Scope?
+    var hasError: Bool
     
     init(outputView: NSTextView?){
         console = outputView
+        hasError = false
     }
     
     func log(string:String, color: NSColor) {
@@ -95,6 +102,7 @@ class SemanticAnalysis {
         case .Error:
             log("[Type Error at position \(row):\(col)] ", color: errorColor())
             log(output+"\n", color: mutedColor())
+            hasError = true
         case .Warning:
             log("[Type Warning at position \(row):\(col)] ", color: warningColor())
             log(output+"\n", color: mutedColor())
@@ -106,21 +114,33 @@ class SemanticAnalysis {
         }
     }
     func analyze(cst: GrammarTree) -> GrammarTree? {
+
+        ast?.root = nil
+        ast?.cur = nil
+        currentScope = nil
+        hasError = false
+        
         ast = GrammarTree()
         symbolTable = Scope()
         currentScope = symbolTable
-        createAST(cst)
-        ast?.showTree()
         
-        log("Symbol Table", type:LogType.Message)
-        log("------------------", type:LogType.Message)
-        showScope(symbolTable!)
-        return ast
+        createAST(cst)
+        
+        if hasError {
+            return nil
+        } else {
+            ast?.showTree()
+            
+            log("Symbol Table",       type:LogType.Message)
+            log("------------", type:LogType.Message)
+            showScope(symbolTable!)
+            return ast
+        }
     }
     
     func showScope(scope: Scope) {
         for (name, symbol) in scope.symbols {
-            log("\(name) -> \(symbol), ", type: LogType.Match)
+            log("\(name) -> \(symbol.type.rawValue), ", type: LogType.Match)
         }
         if scope.children != nil {
             log("", type:LogType.Message)
@@ -130,68 +150,73 @@ class SemanticAnalysis {
         }
     }
     
-    private func getType(name: String) -> VarType? {
-        let symbol = currentScope?.getSymbol(name)
+    private func getType(name: String, recurse:Bool=true) -> VarType? {
+        let symbol = currentScope?.getSymbol(name, recurse: recurse)
         if symbol != nil {
             return symbol!.type
         }
+        log("Use of unresolved identifier '\(name)'", type: LogType.Error)
         return nil
     }
     
-    private func getTypeFromGrammar(grammar: Grammar) -> VarType? {
-//        println(grammar.token!.str)
-        if let type = grammar.type {
-            switch grammar.type! {
-                case .IntExpr:  return VarType.Int
-                case .BoolExpr: return VarType.Boolean
-                case .string:   return VarType.String
-                case .digit:    return VarType.Int
-                default:        return VarType.None
-            }
-        } else {
-            let str = grammar.token!.str
-            switch str {
-                case "string":  return VarType.String
-                case "int":     return VarType.Int
-                case "boolean": return VarType.Boolean
-                case "true":    return VarType.Boolean
-                case "false":   return VarType.Boolean
-                default:
-                    let str = grammar.token!.str
-                    if str.toInt() != nil {
-                        return VarType.Int
-                    } else if count(str) == 1 {
-                        return getType(str)
-                    } else {
-                        return VarType.String
-                    }
-            }
+    private func getTypeFromNode(node: Node<Grammar>) -> VarType? {
+        switch node.value.type! {
+            case GrammarType.string:  return VarType.String
+            case GrammarType.digit:   return VarType.Int
+            case GrammarType.boolval: return VarType.Boolean
+            case GrammarType.Id:      return getType(node.value.token!.str)
+            default:                  return VarType.None
         }
     }
     
+//    private func getTypeFromGrammar(grammar: Grammar) -> VarType? {
+//        if let type = grammar.type {
+//            switch grammar.type! {
+//                case .IntExpr:  return VarType.Int
+//                case .BoolExpr: return VarType.Boolean
+//                case .string:   return VarType.String
+//                case .digit:    return VarType.Int
+//                default:        return VarType.None
+//            }
+//        } else {
+//            let str = grammar.token!.str
+//            switch str {
+//                case "string":  return VarType.String
+//                case "int":     return VarType.Int
+//                case "boolean": return VarType.Boolean
+//                case "true":    return VarType.Boolean
+//                case "false":   return VarType.Boolean
+//                default:
+//                    let str = grammar.token!.str
+//                    if str.toInt() != nil {
+//                        return VarType.Int
+//                    } else if count(str) == 1 {
+//                        return getType(str)
+//                    } else {
+//                        return VarType.String
+//                    }
+//            }
+//        }
+//    }
+    
     private func checkType(node: Node<Grammar>) -> VarType? {
-        var type: VarType? = VarType.None
+        var type: VarType? = nil
+        println()
+        println(node.value.description)
         
         for c in node.children {
-            var grammar: Grammar
-            var childType: VarType?
-            
-            if c.hasChildren() {
-                childType = checkType(c)
-                if childType == nil {
-                    return nil
-                }
-            } else {
-                grammar = c.value
-                childType = getTypeFromGrammar(grammar)
+            var childType: VarType? = getTypeFromNode(c)
+            if childType == nil {
+                return nil
             }
-//            println(childType)
             
-            if type == VarType.None {
+            println(childType!.rawValue)
+            
+            if type == nil {
                 type = childType
             } else {
                 if type != childType {
-                    log("Type mismatch: \(type) and \(childType)", type: LogType.Error)
+                    log("Type mismatch between \(type!.rawValue) and \(childType!.rawValue)", type: LogType.Error)
                     return nil
                 }
             }
@@ -208,10 +233,10 @@ class SemanticAnalysis {
     }
     
     private func convertNode(node: Node<Grammar>?){
-        if node == nil || node!.value.type == nil {
+        if hasError || node == nil || node!.value.type == nil {
             return
         }
-                
+        
         switch node!.value.type! {
             case .StringExpr:
                 var str = ""
@@ -219,8 +244,9 @@ class SemanticAnalysis {
                     str += c.value.token!.str
                 }
                 let n = node?.children[0]
-                n?.value.token?.str = str
-                ast?.addBranch(n!.value)
+                let newNode = ast?.addGrammar(n!.value)
+                newNode?.value.token?.str = str
+                newNode?.value.type = GrammarType.string
 
             case .IntExpr:
                 if count(node!.children) > 1 {
@@ -262,19 +288,24 @@ class SemanticAnalysis {
                 let type = ast!.cur!.children[0].value
                 let name = ast!.cur!.children[1].value
                 
-                if currentScope?.symbols[name.token!.str] != nil {
-                    log("Scope Error. Variable with the name '\(name) has already been declared at #:#.", type: LogType.Error)
+                if currentScope?.getSymbol(name.token!.str, recurse: false) != nil {
+                    log("Variable with the name '\(name.token!.str)' has already been declared at #:#.", type: LogType.Error)
+                    return
                 }
                 currentScope?.addSymbol(type.token!.str, name: name.token!.str)
                 returnToParentNode()
             
             case .Id, .digit, .char, .type, .boolval:
-                ast?.addGrammar(node!.children[0].value)
+                let newNode = ast?.addGrammar(node!.children[0].value)
+                newNode?.value.type = node!.value.type
 
             case .IfStatement, .WhileStatement, .AssignmentStatement, .PrintStatement:
                 ast?.addBranch(node!.value)
                 for c in node!.children {
                     convertNode(c)
+                }
+                if checkType(ast!.cur!) == nil {
+                    return
                 }
                 returnToParentNode()
             
@@ -298,27 +329,5 @@ class SemanticAnalysis {
     func createAST(cst: GrammarTree) {
             convertNode(cst.root)
     }
-    
-//    func typeCheck(){
-//        typeCheck(ast?.root)
-//    }
-//    
-//    func typeCheck(node: Node<Grammar>?){
-//        if node == nil {
-//            return
-//        }
-//        
-//        switch node!.value.type! {
-//        case: .VarDecl:
-//            
-//        default:
-//            for c in node!.children {
-//            typeCheck(c)
-//            }
-//        }
-//    }
-    
-    
-    
     
 }

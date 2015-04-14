@@ -14,7 +14,7 @@ public enum NodeType {
 }
 
 class Node<T> {
-    var parent: Node<T>?
+    weak var parent: Node<T>?
     var children: [Node]
     var value: T
     
@@ -34,6 +34,7 @@ class Node<T> {
     func hasChildren() -> Bool {
         return children.count > 0
     }
+    
 }
 
 class Tree<T> {
@@ -51,11 +52,11 @@ class Tree<T> {
 class GrammarTree {
     
     var root: Node<Grammar>?
-    var cur:  Node<Grammar>?
+    weak var cur:  Node<Grammar>?
     
     init(){
         root = nil
-        self.cur  = nil
+        cur  = nil
     }
     
     init(rootValue: Grammar) {
@@ -112,13 +113,10 @@ class GrammarTree {
     }
     
     func showTree() -> String {
-        // Initialize the result string.
         var traversalResult = "";
-        
-        // Recursive function to handle the expansion of the nodes.
-        
-        // Make the initial call to expand from the root.
-        expand(root!, depth: 0);
+        if root != nil {
+            expand(root!, depth: 0);
+        }
         // Return the result.
         return traversalResult;
     }
