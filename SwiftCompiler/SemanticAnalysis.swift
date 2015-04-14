@@ -11,11 +11,11 @@ import Cocoa
 
 class Symbol {
     var type: VarType
-    var token: Token?
+    var token: Token
     
-    init(type: VarType) {
+    init(type: VarType, token:Token) {
         self.type = type
-        token = nil
+        self.token = token
     }
 }
 
@@ -35,17 +35,17 @@ class Scope {
         scope.parentScope = self
     }
     
-    func addSymbol(type: VarType, name: String){
-        symbols[name] = Symbol(type: type)
+    func addSymbol(type: VarType, name: String, token: Token){
+        symbols[name] = Symbol(type: type, token:token)
     }
     
-    func addSymbol(strType: String, name: String){
+    func addSymbol(strType: String, name: String, token: Token){
         var symbol: Symbol
         switch(strType){
-        case "string":  symbols[name] = Symbol(type: VarType.String)
-        case "boolean": symbols[name] = Symbol(type: VarType.Boolean)
-        case "int":     symbols[name] = Symbol(type: VarType.Int)
-        default:        symbols[name] = Symbol(type: VarType.None)
+        case "string":  symbols[name] = Symbol(type: VarType.String,  token: token)
+        case "boolean": symbols[name] = Symbol(type: VarType.Boolean, token: token)
+        case "int":     symbols[name] = Symbol(type: VarType.Int,     token: token)
+        default:        symbols[name] = Symbol(type: VarType.None,    token: token)
         }
     }
     
@@ -92,10 +92,14 @@ class SemanticAnalysis {
         console!.textStorage?.appendAttributedString(attributedString)
     }
     
-    func log(output: String, type: LogType, token:Token?=nil){
+    func log(string: String){
+        log(string, color:mutedColor())
+    }
+    
+    func log(output: String, type: LogType, position:(Int, Int)){
         var finalOutput = output
-        let row = token?.position.0
-        let col = token?.position.1
+        let row = position.0
+        let col = position.1
         
         var attributes: [NSObject : AnyObject]
         switch type {
@@ -131,8 +135,8 @@ class SemanticAnalysis {
         } else {
             ast?.showTree()
             
-            log("Symbol Table",       type:LogType.Message)
-            log("------------", type:LogType.Message)
+            log("Symbol Table")
+            log("------------")
             showScope(symbolTable!)
             return ast
         }
@@ -140,22 +144,22 @@ class SemanticAnalysis {
     
     func showScope(scope: Scope) {
         for (name, symbol) in scope.symbols {
-            log("\(name) -> \(symbol.type.rawValue), ", type: LogType.Match)
+            log("\(name) -> \(symbol.type.rawValue) ")
         }
         if scope.children != nil {
-            log("", type:LogType.Message)
+            log("")
             for c in scope.children! {
                 showScope(c)
             }
         }
     }
     
-    private func getType(name: String, recurse:Bool=true) -> VarType? {
-        let symbol = currentScope?.getSymbol(name, recurse: recurse)
+    private func getType(token: Token, recurse:Bool=true) -> VarType? {
+        let symbol = currentScope?.getSymbol(token.str, recurse: recurse)
         if symbol != nil {
             return symbol!.type
         }
-        log("Use of unresolved identifier '\(name)'", type: LogType.Error)
+        log("Use of unresolved identifier '\(token.str)'", type: LogType.Error, position:token.position)
         return nil
     }
     
@@ -164,7 +168,7 @@ class SemanticAnalysis {
             case GrammarType.string:  return VarType.String
             case GrammarType.digit:   return VarType.Int
             case GrammarType.boolval: return VarType.Boolean
-            case GrammarType.Id:      return getType(node.value.token!.str)
+            case GrammarType.Id:      return getType(node.value.token!)
             default:                  return VarType.None
         }
     }
@@ -216,7 +220,7 @@ class SemanticAnalysis {
                 type = childType
             } else {
                 if type != childType {
-                    log("Type mismatch between \(type!.rawValue) and \(childType!.rawValue)", type: LogType.Error)
+                    log("Type mismatch between \(type!.rawValue) and \(childType!.rawValue)", type: LogType.Error, position:c.value.token!.position)
                     return nil
                 }
             }
@@ -288,11 +292,12 @@ class SemanticAnalysis {
                 let type = ast!.cur!.children[0].value
                 let name = ast!.cur!.children[1].value
                 
-                if currentScope?.getSymbol(name.token!.str, recurse: false) != nil {
-                    log("Variable with the name '\(name.token!.str)' has already been declared at #:#.", type: LogType.Error)
+                if let symbol = currentScope?.getSymbol(name.token!.str, recurse: false) {
+                    let lineNum = symbol.token.position.0
+                    log("Variable with the name '\(name.token!.str)' has already been declared on line \(lineNum).", type: LogType.Error, position:name.token!.position)
                     return
                 }
-                currentScope?.addSymbol(type.token!.str, name: name.token!.str)
+                currentScope?.addSymbol(type.token!.str, name: name.token!.str, token:name.token!)
                 returnToParentNode()
             
             case .Id, .digit, .char, .type, .boolval:

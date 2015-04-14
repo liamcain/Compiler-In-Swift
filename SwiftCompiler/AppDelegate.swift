@@ -153,9 +153,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
         console!.drawsBackground = true
         console!.editable = false
         console!.backgroundColor = NSColor(calibratedRed: 0.2, green: 0.2, blue: 0.25, alpha: 1.0)
-        console!.textStorage?.font = NSFont(name: "Menlo", size: 22.0)
-        console!.font = NSFont(name: "Menlo", size: 22.0)
-        console?.font = NSFont(name: "Menlo", size: 32.0)
+        
+        // Allow text to align properly in console
+        let style = NSMutableParagraphStyle()
+        style.defaultTabInterval = 36.0
+        console!.defaultParagraphStyle = style
         populateSnippetsMenu()
     }
     

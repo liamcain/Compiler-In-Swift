@@ -93,15 +93,19 @@ class Parser {
     }
     
     func log(string:String, color: NSColor) {
+//        let style = NSMutableParagraphStyle()
+//        style.defaultTabInterval = 36.0
+//        console!.defaultParagraphStyle = style
         console!.font = NSFont(name: "Menlo", size: 12.0)
         let attributedString = NSAttributedString(string: string, attributes: [NSForegroundColorAttributeName: color])
         console!.textStorage?.appendAttributedString(attributedString)
     }
     
-    func log(output: String, type: LogType, token:Token?=nil){
+    func log(output: String, type: LogType, position:(Int, Int)){
         var finalOutput = output
-        let row = token?.position.0
-        let col = token?.position.1
+        
+        let row = position.0
+        let col = position.1
         
         var attributes: [NSObject : AnyObject]
         switch type {
@@ -183,7 +187,7 @@ class Parser {
         } else if nextToken?.type == TokenType.t_braceL {
             block()
         } else {
-            log("Expected the start of a new statement. Instead found \(nextToken!.str)", type:LogType.Error)
+            log("Expected the start of a new statement. Instead found \(nextToken!.str)", type:LogType.Error, position:nextToken!.position)
             return false
         }
         returnToParentNode()
@@ -247,7 +251,7 @@ class Parser {
         } else if nextToken?.type == TokenType.t_identifier {
             id()
         } else {
-            log("Expecting expression. Instead found \(nextToken!.str)", type:LogType.Error)
+            log("Expecting expression. Instead found \(nextToken!.str)", type:LogType.Error, position: nextToken!.position)
         }
         returnToParentNode()
     }
@@ -347,7 +351,7 @@ class Parser {
     
     func matchToken(type: TokenType){
         if nextToken?.type == type {
-            log("Parsing: \(nextToken!.str)\t\t ... ", type:LogType.Match)
+            log("Parsing: \(nextToken!.str)   \t ... ", type:LogType.Match, position:nextToken!.position)
             addLeafNode(nextToken!)
             ++index
             if index < count(tokenStream!) {
@@ -357,7 +361,7 @@ class Parser {
             }
         } else {
             if let nextType = nextToken?.type.rawValue {
-                log("Expected \(type.rawValue). Found '\(nextToken!.str)'", type:LogType.Error)
+                log("Expected \(type.rawValue). Found '\(nextToken!.str)'", type:LogType.Error, position:nextToken!.position)
             }
             nextToken = nil
         }
