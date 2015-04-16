@@ -95,21 +95,14 @@ class Parser {
         let row = position.0
         let col = position.1
         
-        var attributes: [NSObject : AnyObject]
-        switch type {
-        case .Error:
-            appdelegate!.log("[Parse Error at position \(row):\(col)] ", color: errorColor())
-            appdelegate!.log(output+"\n", color: mutedColor())
+        if type == LogType.Error {
             hasError = true
-        case .Warning:
-            appdelegate!.log("[Parse Warning at position \(row):\(col)] ", color: warningColor())
-            appdelegate!.log(output+"\n", color: mutedColor())
-        case .Match:
-            appdelegate!.log(output, color:mutedColor())
-            appdelegate!.log("Found\n", color: matchColor())
-        default:
-            appdelegate!.log(output, color: mutedColor())
         }
+        
+        let log: Log = Log(output: output, phase: "Parse")
+        log.position = position
+        log.type = type
+        appdelegate!.log(log)
     }
     
     func parse(tokenStream: [Token]) -> GrammarTree? {

@@ -89,26 +89,21 @@ class SemanticAnalysis {
     }
 
     func log(output: String, type: LogType, position:(Int, Int)){
+
         var finalOutput = output
         let row = position.0
         let col = position.1
         
-        var attributes: [NSObject : AnyObject]
-        switch type {
-        case .Error:
-            appdelegate!.log("[Type Error at position \(row):\(col)] ", color: errorColor())
-            appdelegate!.log(output+"\n", color: mutedColor())
+        if type == LogType.Error {
             hasError = true
-        case .Warning:
-            appdelegate!.log("[Type Warning at position \(row):\(col)] ", color: warningColor())
-            appdelegate!.log(output+"\n", color: mutedColor())
-        case .Match:
-            appdelegate!.log(output, color:mutedColor())
-            appdelegate!.log("Found\n", color: matchColor())
-        default:
-            appdelegate!.log(output + "\n", color: mutedColor())
         }
+        
+        let log: Log = Log(output: output, phase: "Semantic Analysis")
+        log.position = position
+        log.type = type
+        appdelegate!.log(log)
     }
+    
     func analyze(cst: GrammarTree) -> GrammarTree? {
 
         ast?.root = nil
@@ -122,6 +117,11 @@ class SemanticAnalysis {
         
         createAST(cst)
         
+        appdelegate!.log("\n------------")
+        appdelegate!.log("Symbol Table")
+        appdelegate!.log("------------")
+        showScope(symbolTable!)
+        
         if hasError {
             return nil
         } else {
@@ -129,11 +129,6 @@ class SemanticAnalysis {
             appdelegate!.log("\n---\nAST\n---")
             appdelegate!.log(ast!.showTree())
             
-            
-            appdelegate!.log("------------")
-            appdelegate!.log("Symbol Table")
-            appdelegate!.log("------------")
-            showScope(symbolTable!)
             return ast
         }
     }

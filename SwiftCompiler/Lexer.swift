@@ -56,8 +56,9 @@ class Lexer {
     
     var appdelegate: AppDelegate?
     var tokenStream: [Token]?
-    var lineNum: Int = 1;
-    var linePos: Int = 1;
+    var lineNum: Int = 1
+    var linePos: Int = 1
+    var hasError: Bool = false
     
     let reservedWords: Dictionary<String, TokenType> = [
         "if":TokenType.t_if,
@@ -75,26 +76,20 @@ class Lexer {
     }
     
     func log(string:String, color: NSColor) {
-        appdelegate!.log(string, color: color)
+//        appdelegate!.log(string, color: color)
     }
     
     func log(output: String, type: LogType, tokenType:TokenType?=nil){
         var finalOutput = output
-        var attributes: [NSObject : AnyObject]
-        switch type {
-            case .Error:
-                log("[Lex Error at position \(lineNum):\(linePos)] ", color: errorColor())
-                log(output+"\n", color: mutedColor())
-            case .Warning:
-                log("[Lex Warning at position \(lineNum):\(linePos)] ", color: warningColor())
-                log(output+"\n", color: mutedColor())
-            case .Match:
-                log(output, color:mutedColor())
-                log("[\(tokenType!.rawValue)]\n", color: matchColor())
-            case .Message:
-                log(output, color: mutedColor())
-            case .Verbose: ()
+        
+        if type == LogType.Error {
+            hasError = true
         }
+        
+        let log: Log = Log(output: output, phase: "Lex")
+        log.position = (lineNum, linePos)
+        log.type = type
+        appdelegate!.log(log)
     }
     
     func stringOutput(str: String) -> String {
@@ -122,6 +117,7 @@ class Lexer {
         linePos = 0
         var s :String, s2: String
         var err: NSMutableString = NSMutableString()
+        hasError = false
         
         while true {
             if i >= count(arr) || forward >= count(arr) {

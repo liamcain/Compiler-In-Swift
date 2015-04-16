@@ -24,11 +24,17 @@ public enum LogType {
     case Verbose
 }
 
-public struct Log {
+public class Log {
     var phase: String
-    var position: (Int, Int)
     var output: String
-    var type: LogType
+    var type: LogType         = LogType.Message
+    var color: NSColor?       = nil
+    var position: (Int, Int)? = nil
+    
+    init(output:String, phase: String){
+        self.output = output
+        self.phase = phase
+    }
 }
 
 @NSApplicationMain
@@ -128,15 +134,40 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
         showOverlay("Compiler Succeeded")
     }
     
+
+    
     func log(string:String) {
-        log(string+"\n", color:mutedColor())
+        logString(string+"\n", color:mutedColor())
     }
     
-    func log(string:String, color: NSColor) {
+    func logString(string:String, color: NSColor) {
         dispatch_async(dispatch_get_main_queue()) {
             let font = NSFont(name: "Menlo", size: 12)
             let attributedString = NSAttributedString(string: string, attributes: [NSForegroundColorAttributeName: color, NSFontAttributeName: font!])
             self.console.textStorage?.appendAttributedString(attributedString)
+        }
+    }
+    
+    func log(log: Log){
+        var str: String
+        switch log.type {
+        case .Warning:
+            str = "[\(log.phase)] Warning at position \(log.position!.0):\(log.position!.1)] \(log.output)\n"
+            logString(str, color:warningColor())
+        case .Error:
+            str = "[\(log.phase)] Error at position \(log.position!.0):\(log.position!.1)] \(log.output)\n"
+            logString(str, color:errorColor())
+        case .Match:
+            str = "\(log.output)\n"
+            logString(str, color:matchColor())
+        case .Message:
+            str = "\(log.output)\n"
+            logString(str, color:mutedColor())
+        case .Verbose:
+            if verboseToggle {
+                str = "\(log.output)\n"
+                logString(str, color:mutedColor())
+            }
         }
     }
     
