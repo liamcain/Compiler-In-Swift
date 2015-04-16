@@ -2,6 +2,11 @@
 
 This is a compiler for CMPT432 written in [Swift](https://developer.apple.com/swift/). It will eventually compile `Alan++` into [6502 opcode](http://www.6502.org/tutorials/6502opcodes.html).
 
+*Note:* I will be out of touch until Monday night. I thought I would have time to finish verbose mode but I refactored my logging instead. I plan on adding verbose mode when I get back.
+
+#### Alan: If you can wait until I get back to finish verbose mode and make my output prettier, I will bring you a Souvenir from Panama!
+
+
 Features
 ========
 - [x] Lexer - Makes sure you spelled `boolean` right
