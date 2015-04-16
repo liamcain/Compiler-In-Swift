@@ -1,10 +1,13 @@
-Alan++ Compiler in Swift
-========================
-
-#Important
-This project has been updated to use [Swift 1.2](https://developer.apple.com/swift/blog/?id=22) which is not backwards compatible with previous versions. Make sure that you have [Xcode 6.3 Beta](https://developer.apple.com/xcode/downloads/) installed. Sorry for the inconvience.
+![Swift Compiler](compiler-header.png?raw=true)
 
 This is a compiler for CMPT432 written in [Swift](https://developer.apple.com/swift/). It will eventually compile `Alan++` into [6502 opcode](http://www.6502.org/tutorials/6502opcodes.html).
+
+Features
+========
+[x] Lexer - Makes sure you spelled `boolean` right
+[x] Parser - Did I put 5 parentheses or 6?
+[x] Semantic Analysis - Oh, I never declared that variable that does the stuff?
+[ ] Code Generation - *Coming Soon!*
 
 Requirements
 ============
