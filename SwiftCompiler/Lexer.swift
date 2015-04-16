@@ -30,30 +30,6 @@ public enum TokenType: String {
     case t_eof = "end of file"
 }
 
-//public enum Type: String {
-//    
-//    public enum Kind {
-//        case NonTerminal
-//        case Terminal
-//    }
-//    
-//    var kind: Kind {
-//        switch self {
-//        case t_digit, t_parenL, t_parenR, t_operator, t_boolop, t_assign, t_boolval, t_intop, t_quote, t_braceL, t_braceR, t_eof:
-//            return Kind.Terminal
-//        default:
-//            return Kind.NonTerminal
-//        }
-//    }
-//}
-
-public enum LogType {
-    case Message
-    case Match
-    case Error
-    case Warning
-}
-
 public struct Token {
     var str: String
     var type: TokenType
@@ -78,7 +54,7 @@ prefix func ~/(pattern: String) -> NSRegularExpression {
 
 class Lexer {
     
-    var console: TextView?
+    var appdelegate: AppDelegate?
     var tokenStream: [Token]?
     var lineNum: Int = 1;
     var linePos: Int = 1;
@@ -94,17 +70,12 @@ class Lexer {
         "false":TokenType.t_boolval,
         "true":TokenType.t_boolval ]
     
-    init(outputView: TextView?){
-        console = outputView
+    init(){
+        appdelegate = (NSApplication.sharedApplication().delegate as! AppDelegate)
     }
     
     func log(string:String, color: NSColor) {
-        dispatch_async(dispatch_get_main_queue()) {
-            self.console!.font = NSFont(name: "Menlo", size: 12.0)
-            let attributedString = NSAttributedString(string: string, attributes: [NSForegroundColorAttributeName: color])
-            self.console!.textStorage?.appendAttributedString(attributedString)
-            self.console!.needsDisplay = true
-        }
+        appdelegate!.log(string, color: color)
     }
     
     func log(output: String, type: LogType, tokenType:TokenType?=nil){
@@ -120,13 +91,22 @@ class Lexer {
             case .Match:
                 log(output, color:mutedColor())
                 log("[\(tokenType!.rawValue)]\n", color: matchColor())
-            default:
+            case .Message:
                 log(output, color: mutedColor())
+            case .Verbose: ()
         }
     }
     
+    func stringOutput(str: String) -> String {
+        var spaces = ""
+        for i in 1...(10 - count(str)) {
+            spaces = "\(spaces) "
+        }
+        return str + spaces
+    }
+    
     func createToken(str: String, type: TokenType){
-        log("Lexing:  \(str)   \t... ", type: LogType.Match, tokenType:type)
+        log("Lexing:  \(stringOutput(str))... ", type: LogType.Match, tokenType:type)
         tokenStream!.append(Token(str: str, type: type, position:(lineNum,linePos)))
     }
     

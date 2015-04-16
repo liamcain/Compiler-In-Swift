@@ -53,15 +53,18 @@ class GrammarTree {
     
     var root: Node<Grammar>?
     weak var cur:  Node<Grammar>?
+    private var traversalResult: String
     
     init(){
         root = nil
         cur  = nil
+        traversalResult = ""
     }
     
     init(rootValue: Grammar) {
         root = Node<Grammar>(t:rootValue)
         cur = root
+        traversalResult = ""
     }
     
     func addBranch(value: Grammar){
@@ -85,39 +88,31 @@ class GrammarTree {
         return node
     }
     
-    // Only used for display purposes
     func expand(node: Node<Grammar>, depth: Int){
-        // Space out based on the current depth so
-        // this looks at least a little tree-like.
+        traversalResult += "\n"
         for (var i = 0; i < depth; i++){
-            print("-")
+            traversalResult += "-"
         }
         
-        // If there are no children (i.e., leaf nodes)...
         if (count(node.children) == 0){
-            // ... note the leaf node.
-            print("[")
-            print(node.value.description)
-            println("]")
+            traversalResult += "["
+            traversalResult += node.value.description
+            traversalResult += "]"
         } else {
-            // There are children, so note these interior/branch nodes and ...
-            print("<")
-            print(node.value.description)
-            println(">")
-            // .. recursively expand them.
-            for (var i = 0; i < node.children.count; i++)
-            {
-                expand(node.children[i], depth: depth + 1);
+            traversalResult += "<"
+            traversalResult += (node.value.description)
+            traversalResult += ">"
+            for (var i = 0; i < node.children.count; i++) {
+                expand(node.children[i], depth: depth + 1)
             }
         }
     }
     
     func showTree() -> String {
-        var traversalResult = "";
+        traversalResult = ""
         if root != nil {
-            expand(root!, depth: 0);
+            expand(root!, depth: 0)
         }
-        // Return the result.
-        return traversalResult;
+        return traversalResult
     }
 }

@@ -16,6 +16,21 @@ extension Dictionary {
     }
 }
 
+public enum LogType {
+    case Message
+    case Match
+    case Error
+    case Warning
+    case Verbose
+}
+
+public struct Log {
+    var phase: String
+    var position: (Int, Int)
+    var output: String
+    var type: LogType
+}
+
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOutlineViewDataSource {
 
@@ -31,9 +46,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
     @IBOutlet weak var customSnippetsMenu: NSMenu!
     
     @IBOutlet weak var cursorPosLabel: NSTextField!
-    @IBOutlet var console: TextView?
     
     var textView: NSTextView { return inputScrollView!.contentView.documentView as! NSTextView }
+    var console:  OutputTextView { return outputScrollView!.contentView.documentView as! OutputTextView }
     
     var rulerView: RulerView?
     var lexer: Lexer?
@@ -42,6 +57,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
     var tokenStream: [Token]?
     var defaultSnippets: Dictionary<String, String> = Dictionary()
     var customSnippets: Dictionary<String, String>  = Dictionary()
+    var verboseToggle: Bool = false
     
     @IBAction func createSnippetPressed(sender: AnyObject) {
         let name = "Test Case \(customSnippets.count)"
@@ -52,12 +68,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
     }
     
     @IBAction func verboseToggle(sender: NSMenuItem) {
-        switch sender.title {
-            case "Enable Verbose":
-                sender.title = "Disable Verbose"
-            case "Disable Verbose":
-                sender.title = "Enable Verbose"
-            default: ()
+        verboseToggle = !verboseToggle
+        if verboseToggle {
+            sender.title = "Disable Verbose"
+        } else {
+            sender.title = "Enable Verbose"
         }
     }
     
@@ -71,7 +86,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
     }
     
     func compile(){
-        console!.textStorage?.setAttributedString(NSAttributedString(string: ""))
+        console.textStorage?.setAttributedString(NSAttributedString(string: ""))
         
         // -- LEX --------------------------------------
         log("-----------------------------")
@@ -113,8 +128,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
         showOverlay("Compiler Succeeded")
     }
     
-    func log(output: String){
-//        console!.log(output, color: matchColor())
+    func log(string:String) {
+        log(string+"\n", color:mutedColor())
+    }
+    
+    func log(string:String, color: NSColor) {
+        dispatch_async(dispatch_get_main_queue()) {
+            let font = NSFont(name: "Menlo", size: 12)
+            let attributedString = NSAttributedString(string: string, attributes: [NSForegroundColorAttributeName: color, NSFontAttributeName: font!])
+            self.console.textStorage?.appendAttributedString(attributedString)
+        }
     }
     
     func insertSnippet(sender: AnyObject){
@@ -161,29 +184,33 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
     
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         let textView = self.textView
-        lexer = Lexer(outputView: console)
-        parser = Parser(outputView: console)
-        analyzer = SemanticAnalysis(outputView: console)
+        let console  = self.console
+        
+        lexer    = Lexer()
+        parser   = Parser()
+        analyzer = SemanticAnalysis()
         
         textView.translatesAutoresizingMaskIntoConstraints = true
         textView.textContainerInset = NSMakeSize(0,1)
-//        textView.font = NSFont.userFixedPitchFontOfSize(NSFont.smallSystemFontSize())
         textView.font = NSFont(name: "Menlo", size: 12.0)
         textView.automaticQuoteSubstitutionEnabled = false
+        
+        console.translatesAutoresizingMaskIntoConstraints = true
+        console.font = NSFont(name: "Menlo", size: 12.0)
         
         rulerView = RulerView(scrollView: inputScrollView, orientation: NSRulerOrientation.VerticalRuler)
         inputScrollView!.verticalRulerView = rulerView
         inputScrollView!.hasHorizontalRuler = false
         inputScrollView!.hasVerticalRuler = true
         inputScrollView!.rulersVisible = true
-        console!.drawsBackground = true
-        console!.editable = false
-        console!.backgroundColor = NSColor(calibratedRed: 0.2, green: 0.2, blue: 0.25, alpha: 1.0)
+        console.drawsBackground = true
+        console.editable = false
+        console.backgroundColor = NSColor(calibratedRed: 0.2, green: 0.2, blue: 0.25, alpha: 1.0)
         
         // Allow text to align properly in console
         let style = NSMutableParagraphStyle()
         style.defaultTabInterval = 36.0
-        console!.defaultParagraphStyle = style
+        console.defaultParagraphStyle = style
         populateSnippetsMenu()
     }
     

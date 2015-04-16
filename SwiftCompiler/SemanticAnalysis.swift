@@ -75,8 +75,7 @@ class Scope {
 class SemanticAnalysis {
     
     //views
-    weak var outputView: NSScrollView?
-    var console: TextView?
+    var appdelegate: AppDelegate?
     
     //models
     var symbolTable: Scope?
@@ -84,24 +83,11 @@ class SemanticAnalysis {
     weak var currentScope: Scope?
     var hasError: Bool
     
-    init(outputView: TextView?){
-        console = outputView
+    init(){
+        appdelegate = NSApplication.sharedApplication().delegate as! AppDelegate
         hasError = false
     }
-    
-    func log(string:String, color: NSColor) {
-        dispatch_async(dispatch_get_main_queue()) {
-            self.console!.font = NSFont(name: "Menlo", size: 12.0)
-            let attributedString = NSAttributedString(string: string, attributes: [NSForegroundColorAttributeName: color])
-            self.console!.textStorage?.appendAttributedString(attributedString)
-            self.console!.needsDisplay = true
-        }
-    }
-    
-    func log(string: String){
-        log(string+"\n", color:mutedColor())
-    }
-    
+
     func log(output: String, type: LogType, position:(Int, Int)){
         var finalOutput = output
         let row = position.0
@@ -110,17 +96,17 @@ class SemanticAnalysis {
         var attributes: [NSObject : AnyObject]
         switch type {
         case .Error:
-            log("[Type Error at position \(row):\(col)] ", color: errorColor())
-            log(output+"\n", color: mutedColor())
+            appdelegate!.log("[Type Error at position \(row):\(col)] ", color: errorColor())
+            appdelegate!.log(output+"\n", color: mutedColor())
             hasError = true
         case .Warning:
-            log("[Type Warning at position \(row):\(col)] ", color: warningColor())
-            log(output+"\n", color: mutedColor())
+            appdelegate!.log("[Type Warning at position \(row):\(col)] ", color: warningColor())
+            appdelegate!.log(output+"\n", color: mutedColor())
         case .Match:
-            log(output, color:mutedColor())
-            log("Found\n", color: matchColor())
+            appdelegate!.log(output, color:mutedColor())
+            appdelegate!.log("Found\n", color: matchColor())
         default:
-            log(output + "\n", color: mutedColor())
+            appdelegate!.log(output + "\n", color: mutedColor())
         }
     }
     func analyze(cst: GrammarTree) -> GrammarTree? {
@@ -140,11 +126,13 @@ class SemanticAnalysis {
             return nil
         } else {
             showWarnings()
-            ast?.showTree()
+            appdelegate!.log("\n---\nAST\n---")
+            appdelegate!.log(ast!.showTree())
             
-            log("")
-            log("Symbol Table")
-            log("------------ ")
+            
+            appdelegate!.log("------------")
+            appdelegate!.log("Symbol Table")
+            appdelegate!.log("------------")
             showScope(symbolTable!)
             return ast
         }
@@ -152,13 +140,13 @@ class SemanticAnalysis {
     
     func showScope(scope: Scope) {
         for (name, symbol) in scope.symbols {
-            log("\(name) -> \(symbol.type.rawValue) ")
+            appdelegate!.log("\(name) -> \(symbol.type.rawValue) ")
         }
         if scope.children != nil {
             for c in scope.children! {
                 showScope(c)
             }
-            log("")
+            appdelegate!.log("")
         }
     }
     
@@ -347,103 +335,6 @@ class SemanticAnalysis {
             }
         }
     }
-/*
-    private func convertNode(node: Node<Grammar>?){
-        if hasError || node == nil || node!.value.type == nil {
-            return
-        }
-        
-        switch node!.value.type! {
-            case .StringExpr:
-                var str = ""
-                for c in node!.children {
-                    str += c.value.token!.str
-                }
-                let n = node?.children[0]
-                let newNode = ast?.addGrammar(n!.value)
-                newNode?.value.token?.str = str
-                newNode?.value.type = GrammarType.string
-
-            case .IntExpr:
-                if count(node!.children) > 1 {
-                    ast?.addBranch(node!.children[1].children[0].value)
-                    for c in node!.children {
-                        convertNode(c)
-                    }
-                    if checkType(ast!.cur!) == nil {
-                        return
-                    }
-                    returnToParentNode()
-                } else {
-                    for c in node!.children {
-                        convertNode(c)
-                    }
-                }
-            
-            case .BoolExpr:
-                if count(node!.children) > 1 {
-                    ast?.addBranch(node!.children[2].children[0].value)
-                    for c in node!.children {
-                        convertNode(c)
-                    }
-                    returnToParentNode()
-                    if checkType(ast!.cur!) == nil {
-                        return
-                    }
-                } else {
-                    for c in node!.children {
-                        convertNode(c)
-                    }
-                }
-            
-            case .VarDecl:
-                ast?.addBranch(node!.value)
-                for c in node!.children {
-                    convertNode(c)
-                }
-                let type = ast!.cur!.children[0].value
-                let name = ast!.cur!.children[1].value
-                
-                if let symbol = currentScope?.getSymbol(name.token!.str, recurse: false) {
-                    let lineNum = symbol.token.position.0
-                    log("Variable with the name '\(name.token!.str)' has already been declared on line \(lineNum).", type: LogType.Error, position:name.token!.position)
-                    return
-                }
-                currentScope?.addSymbol(type.token!.str, name: name.token!.str, token:name.token!)
-                returnToParentNode()
-            
-            case .Id, .digit, .char, .type, .boolval:
-                let newNode = ast?.addGrammar(node!.children[0].value)
-                newNode?.value.type = node!.value.type
-            
-            case .IfStatement, .WhileStatement, .AssignmentStatement, .PrintStatement:
-                ast?.addBranch(node!.value)
-                for c in node!.children {
-                    convertNode(c)
-                }
-                
-                //TODO: IF and While shouldn't be typechecked. ONly expressions. whoops
-                if checkType(ast!.cur!) == nil {
-                    return
-                }
-                returnToParentNode()
-            
-            case .Block:
-                let newScope = Scope()
-                currentScope?.adopt(newScope)
-                currentScope = newScope
-                
-                ast?.addBranch(node!.value)
-                for c in node!.children {
-                    convertNode(c)
-                }
-                returnToParentNode()
-            default:
-                for c in node!.children {
-                    convertNode(c)
-                }
-        }
-    }*/
     
     func createAST(cst: GrammarTree) {
             convertNode(cst.root)

@@ -12,7 +12,6 @@ class TextView: NSTextView {
     let myDelegate = TextViewDelegate()
     var guidePosition : CGFloat = 0
     var currentColumn : Int = 0
-//    var fixedFont = NSFont.userFixedPitchFontOfSize(NSFont.smallSystemFontSize())
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
@@ -29,7 +28,6 @@ class TextView: NSTextView {
             selector: "selectionDidChange:",
             name: NSTextViewDidChangeSelectionNotification,
             object: self)
-//        guidePosition = initGuidePosition()
     }
     
     deinit {
@@ -49,10 +47,7 @@ class TextView: NSTextView {
     }
     
     override func drawViewBackgroundInRect(rect: NSRect) {
-        //super.drawViewBackgroundInRect(rect)
-//        drawPageGuideBackgroundAt(guidePosition)
         drawHighlightedLine()
-//        drawPageGuideLineAt(guidePosition)
     }
     
     func drawHighlightedLine() {

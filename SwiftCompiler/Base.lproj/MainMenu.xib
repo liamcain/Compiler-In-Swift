@@ -13,7 +13,6 @@
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="SwiftCompiler" customModuleProvider="target">
             <connections>
-                <outlet property="console" destination="nOY-cm-zct" id="URZ-xS-AkZ"/>
                 <outlet property="cursorPosLabel" destination="wpM-rU-y2R" id="7xy-88-dcE"/>
                 <outlet property="customSnippetsMenu" destination="DGs-k3-caq" id="p9K-BN-dVo"/>
                 <outlet property="defaultSnippetsMenu" destination="0mr-4P-wiT" id="p79-yT-eYa"/>
@@ -430,13 +429,13 @@
                                 <rect key="frame" x="463" y="0.0" width="448" height="690"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <subviews>
-                                    <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Djx-Ye-d5Y">
+                                    <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Djx-Ye-d5Y" customClass="ScrollView" customModule="SwiftCompiler" customModuleProvider="target">
                                         <rect key="frame" x="1" y="0.0" width="447" height="690"/>
                                         <clipView key="contentView" id="MTx-6P-aL6">
                                             <rect key="frame" x="1" y="1" width="238" height="133"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
-                                                <textView importsGraphics="NO" findStyle="bar" allowsUndo="YES" usesRuler="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" id="nOY-cm-zct">
+                                                <textView importsGraphics="NO" findStyle="bar" allowsUndo="YES" usesRuler="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" id="nOY-cm-zct" customClass="OutputTextView" customModule="SwiftCompiler" customModuleProvider="target">
                                                     <rect key="frame" x="0.0" y="0.0" width="238" height="690"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>

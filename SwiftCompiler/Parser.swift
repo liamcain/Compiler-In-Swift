@@ -75,8 +75,7 @@ class Grammar {
 class Parser {
     
     // Views
-    weak var outputView: NSScrollView?
-    var console: TextView?
+    var appdelegate: AppDelegate?
     
     // Model
     var tokenStream: [Token]?
@@ -85,20 +84,9 @@ class Parser {
     var nextToken: Token?
     var hasError: Bool
     
-    init(outputView: TextView?){
-//        cst = GrammarTree()
-//        nextToken = nil
-        console = outputView
+    init(){
+        appdelegate = (NSApplication.sharedApplication().delegate as! AppDelegate)
         hasError = false
-    }
-    
-    func log(string:String, color: NSColor) {
-        dispatch_async(dispatch_get_main_queue()) {
-            self.console!.font = NSFont(name: "Menlo", size: 12.0)
-            let attributedString = NSAttributedString(string: string, attributes: [NSForegroundColorAttributeName: color])
-            self.console!.textStorage?.appendAttributedString(attributedString)
-            self.console!.needsDisplay = true
-        }
     }
     
     func log(output: String, type: LogType, position:(Int, Int)){
@@ -110,17 +98,17 @@ class Parser {
         var attributes: [NSObject : AnyObject]
         switch type {
         case .Error:
-            log("[Parse Error at position \(row):\(col)] ", color: errorColor())
-            log(output+"\n", color: mutedColor())
+            appdelegate!.log("[Parse Error at position \(row):\(col)] ", color: errorColor())
+            appdelegate!.log(output+"\n", color: mutedColor())
             hasError = true
         case .Warning:
-            log("[Parse Warning at position \(row):\(col)] ", color: warningColor())
-            log(output+"\n", color: mutedColor())
+            appdelegate!.log("[Parse Warning at position \(row):\(col)] ", color: warningColor())
+            appdelegate!.log(output+"\n", color: mutedColor())
         case .Match:
-            log(output, color:mutedColor())
-            log("Found\n", color: matchColor())
+            appdelegate!.log(output, color:mutedColor())
+            appdelegate!.log("Found\n", color: matchColor())
         default:
-            log(output, color: mutedColor())
+            appdelegate!.log(output, color: mutedColor())
         }
     }
     
@@ -136,7 +124,8 @@ class Parser {
         }
         
         if !hasError {
-            cst?.showTree()
+            log("\n---\nCST\n---", type: LogType.Message, position:(0,0))
+            log(cst!.showTree(), type: LogType.Message, position:(0,0))
             return cst
         } else {
             return nil
@@ -349,13 +338,21 @@ class Parser {
         cst!.cur = cst?.cur?.parent
     }
     
+    func stringOutput(str: String) -> String {
+        var spaces = ""
+        for i in 1...(10 - count(str)) {
+            spaces = "\(spaces) "
+        }
+        return str + spaces
+    }
+    
     func matchToken(type: TokenType){
         if hasError {
             nextToken = nil
             return
         }
         if nextToken?.type == type {
-            log("Parsing: \(nextToken!.str)   \t ... ", type:LogType.Match, position:nextToken!.position)
+            log("Parsing: \(stringOutput(nextToken!.str))   \t ... ", type:LogType.Match, position:nextToken!.position)
             addLeafNode(nextToken!)
             ++index
             if index < count(tokenStream!) {
