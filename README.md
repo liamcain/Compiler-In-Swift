@@ -4,10 +4,10 @@ This is a compiler for CMPT432 written in [Swift](https://developer.apple.com/sw
 
 Features
 ========
-[x] Lexer - Makes sure you spelled `boolean` right
-[x] Parser - Did I put 5 parentheses or 6?
-[x] Semantic Analysis - Oh, I never declared that variable that does the stuff?
-[ ] Code Generation - *Coming Soon!*
+- [x] Lexer - Makes sure you spelled `boolean` right
+- [x] Parser - Did I put 5 parentheses or 6?
+- [x] Semantic Analysis - Oh, I never declared that variable that does the stuff?
+- [ ] Code Generation - *Coming Soon!*
 
 Requirements
 ============
