@@ -78,7 +78,7 @@ prefix func ~/(pattern: String) -> NSRegularExpression {
 
 class Lexer {
     
-    var console: NSTextView?
+    var console: TextView?
     var tokenStream: [Token]?
     var lineNum: Int = 1;
     var linePos: Int = 1;
@@ -94,14 +94,17 @@ class Lexer {
         "false":TokenType.t_boolval,
         "true":TokenType.t_boolval ]
     
-    init(outputView: NSTextView?){
+    init(outputView: TextView?){
         console = outputView
     }
     
     func log(string:String, color: NSColor) {
-        console!.font = NSFont(name: "Menlo", size: 12.0)
-        let attributedString = NSAttributedString(string: string, attributes: [NSForegroundColorAttributeName: color])
-        console!.textStorage?.appendAttributedString(attributedString)
+        dispatch_async(dispatch_get_main_queue()) {
+            self.console!.font = NSFont(name: "Menlo", size: 12.0)
+            let attributedString = NSAttributedString(string: string, attributes: [NSForegroundColorAttributeName: color])
+            self.console!.textStorage?.appendAttributedString(attributedString)
+            self.console!.needsDisplay = true
+        }
     }
     
     func log(output: String, type: LogType, tokenType:TokenType?=nil){
@@ -128,6 +131,7 @@ class Lexer {
     }
     
     func lex(input: String) -> [Token]? {
+        
         var lexState: LexState = LexState.Default
         tokenStream = []
         let arr = Array(input)
@@ -238,6 +242,5 @@ class Lexer {
             }
         }
     }
-    
 }
 

@@ -23,13 +23,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
     @IBOutlet weak var splitView: NSSplitView!
     @IBOutlet weak var inputScrollView: ScrollView!
     @IBOutlet weak var outputScrollView: NSScrollView!
+    @IBOutlet weak var overlayPanel: NSPanel!
+    @IBOutlet weak var overlayText: NSTextField!
+    @IBOutlet weak var runButton: NSToolbarItem!
 
     @IBOutlet weak var defaultSnippetsMenu: NSMenu!
     @IBOutlet weak var customSnippetsMenu: NSMenu!
-
     
     @IBOutlet weak var cursorPosLabel: NSTextField!
-    @IBOutlet var console: NSTextView?
+    @IBOutlet var console: TextView?
     
     var textView: NSTextView { return inputScrollView!.contentView.documentView as! NSTextView }
     
@@ -40,7 +42,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
     var tokenStream: [Token]?
     var defaultSnippets: Dictionary<String, String> = Dictionary()
     var customSnippets: Dictionary<String, String>  = Dictionary()
-
+    
     @IBAction func createSnippetPressed(sender: AnyObject) {
         let name = "Test Case \(customSnippets.count)"
         customSnippetsMenu.addItem(NSMenuItem(title: name, action: Selector("insertSnippet:"), keyEquivalent: ""))
@@ -48,13 +50,24 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
         Defaults["snippets"] = customSnippets
         Defaults.synchronize()
     }
+    
+    @IBAction func verboseToggle(sender: NSMenuItem) {
+        switch sender.title {
+            case "Enable Verbose":
+                sender.title = "Disable Verbose"
+            case "Disable Verbose":
+                sender.title = "Enable Verbose"
+            default: ()
+        }
+    }
+    
 
     @IBAction func compileMenuItemPressed(sender: AnyObject) {
-        compile()
+        self.compile()
     }
 
     @IBAction func compileButtonPressed(sender: AnyObject) {
-        compile()
+        self.compile()
     }
     
     func compile(){
@@ -66,6 +79,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
         log("-----------------------------")
         tokenStream = lexer?.lex(textView.string!)
         if tokenStream == nil {
+            showOverlay("Lexer Failed")
             log("*Lex failed. Exiting.*")
             return
         }
@@ -79,6 +93,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
         
         let cst = parser!.parse(tokenStream!)
         if cst == nil {
+            showOverlay("Parser Failed")
             log("*Parse failed. Exiting.*")
             return
         }
@@ -91,17 +106,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
         log("-----------------------------")
         let ast = analyzer!.analyze(cst!)
         if ast == nil {
+            showOverlay("Semantic Analysis Failed")
             log("*Semantic Analysis failed. Exiting.*")
             return
         }
-        
+        showOverlay("Compiler Succeeded")
     }
     
     func log(output: String){
-        console!.font = NSFont(name: "Menlo", size: 12.0)
-        let attributes = [NSForegroundColorAttributeName: matchColor()]
-        var str: NSAttributedString = NSAttributedString(string: (output + "\n"), attributes: attributes)
-        console!.textStorage?.appendAttributedString(str)
+//        console!.log(output, color: matchColor())
     }
     
     func insertSnippet(sender: AnyObject){
@@ -113,8 +126,21 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
         } else {
             textView.insertText(defaultSnippets[str]!)
         }
+    }
+    
+    func showOverlay(str:String) {
+        overlayText.stringValue = str
         
+        self.window.addChildWindow(overlayPanel, ordered: NSWindowOrderingMode.Above)
+        let xPos = window.frame.origin.x + window.frame.size.width/2 - NSWidth(overlayPanel.frame)/2
+        let yPos = window.frame.origin.y + window.frame.size.height/2 - NSHeight(overlayPanel.frame)/2
+        overlayPanel.center()
+        overlayPanel.setFrameOrigin(NSPoint(x:xPos, y:yPos))
+        overlayPanel.makeKeyAndOrderFront(self.window)
         
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(1.2 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) { () -> Void in
+            self.overlayPanel.orderOut(self.overlayPanel)
+        }
     }
     
     func populateSnippetsMenu() {

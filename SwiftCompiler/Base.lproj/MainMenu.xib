@@ -19,7 +19,11 @@
                 <outlet property="defaultSnippetsMenu" destination="0mr-4P-wiT" id="p79-yT-eYa"/>
                 <outlet property="inputScrollView" destination="8d0-wD-oCL" id="8ah-Pp-6dL"/>
                 <outlet property="outputScrollView" destination="Djx-Ye-d5Y" id="4l6-J7-cSP"/>
+                <outlet property="overlayPanel" destination="gkw-W8-yjH" id="xk9-X5-CdK"/>
+                <outlet property="overlayText" destination="hlL-b3-qet" id="0be-au-uRO"/>
+                <outlet property="runButton" destination="Rfy-Dk-a69" id="rQw-wg-jUK"/>
                 <outlet property="splitView" destination="kJ1-tU-9ai" id="cKm-c1-Hzq"/>
+                <outlet property="verboseToggle" destination="qyb-HY-BeD" id="axi-kA-R5S"/>
                 <outlet property="window" destination="QvC-M9-y7g" id="gIp-Ho-8D9"/>
             </connections>
         </customObject>
@@ -320,6 +324,14 @@
                                     <action selector="compileMenuItemPressed:" target="Voe-Tx-rLC" id="m1r-5o-Url"/>
                                 </connections>
                             </menuItem>
+                            <menuItem isSeparatorItem="YES" id="Evf-gr-J3R"/>
+                            <menuItem title="Enable Verbose" id="qyb-HY-BeD">
+                                <attributedString key="attributedTitle"/>
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="verboseToggle:" target="Voe-Tx-rLC" id="G7Y-Hk-Fnx"/>
+                                </connections>
+                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>
@@ -384,7 +396,7 @@
                                             <rect key="frame" x="1" y="1" width="238" height="133"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
-                                                <textView importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="rw4-kr-hjl" customClass="TextView" customModule="SwiftCompiler" customModuleProvider="target">
+                                                <textView importsGraphics="NO" findStyle="bar" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="rw4-kr-hjl" customClass="TextView" customModule="SwiftCompiler" customModuleProvider="target">
                                                     <rect key="frame" x="0.0" y="0.0" width="238" height="690"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -508,24 +520,26 @@
             </toolbar>
             <point key="canvasLocation" x="-1524.5" y="485"/>
         </window>
-        <menuItem title="File" id="dMs-cI-mzQ">
-            <modifierMask key="keyEquivalentModifierMask"/>
-            <menu key="submenu" title="File" id="bib-Uj-vzu">
-                <items>
-                    <menuItem title="Close" keyEquivalent="w" id="DVo-aG-piG">
-                        <connections>
-                            <action selector="performClose:" target="-1" id="HmO-Ls-i7Q"/>
-                        </connections>
-                    </menuItem>
-                    <menuItem isSeparatorItem="YES" id="aJh-i4-bef"/>
-                    <menuItem title="Print…" keyEquivalent="p" id="aTl-1u-JFS">
-                        <connections>
-                            <action selector="print:" target="-1" id="qaZ-4w-aoO"/>
-                        </connections>
-                    </menuItem>
-                </items>
-            </menu>
-        </menuItem>
+        <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="alertPanel" id="gkw-W8-yjH" customClass="NSPanel">
+            <windowStyleMask key="styleMask" utility="YES" HUD="YES"/>
+            <rect key="contentRect" x="655" y="409" width="374" height="126"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
+            <view key="contentView" id="I3G-l7-tUI">
+                <rect key="frame" x="0.0" y="0.0" width="374" height="126"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hlL-b3-qet">
+                        <rect key="frame" x="18" y="45" width="338" height="36"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Build Successful" id="G88-Cb-Dn1">
+                            <font key="font" metaFont="system" size="30"/>
+                            <color key="textColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                </subviews>
+            </view>
+            <point key="canvasLocation" x="-1515" y="419"/>
+        </window>
     </objects>
     <resources>
         <image name="Run-button" width="59" height="52"/>

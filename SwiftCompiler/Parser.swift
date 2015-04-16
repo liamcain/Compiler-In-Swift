@@ -76,7 +76,7 @@ class Parser {
     
     // Views
     weak var outputView: NSScrollView?
-    var console: NSTextView?
+    var console: TextView?
     
     // Model
     var tokenStream: [Token]?
@@ -85,7 +85,7 @@ class Parser {
     var nextToken: Token?
     var hasError: Bool
     
-    init(outputView: NSTextView?){
+    init(outputView: TextView?){
 //        cst = GrammarTree()
 //        nextToken = nil
         console = outputView
@@ -93,12 +93,12 @@ class Parser {
     }
     
     func log(string:String, color: NSColor) {
-//        let style = NSMutableParagraphStyle()
-//        style.defaultTabInterval = 36.0
-//        console!.defaultParagraphStyle = style
-        console!.font = NSFont(name: "Menlo", size: 12.0)
-        let attributedString = NSAttributedString(string: string, attributes: [NSForegroundColorAttributeName: color])
-        console!.textStorage?.appendAttributedString(attributedString)
+        dispatch_async(dispatch_get_main_queue()) {
+            self.console!.font = NSFont(name: "Menlo", size: 12.0)
+            let attributedString = NSAttributedString(string: string, attributes: [NSForegroundColorAttributeName: color])
+            self.console!.textStorage?.appendAttributedString(attributedString)
+            self.console!.needsDisplay = true
+        }
     }
     
     func log(output: String, type: LogType, position:(Int, Int)){
@@ -187,7 +187,7 @@ class Parser {
         } else if nextToken?.type == TokenType.t_braceL {
             block()
         } else {
-            log("Expected the start of a new statement. Instead found \(nextToken!.str)", type:LogType.Error, position:nextToken!.position)
+            log("Expected the start of a new statement. Instead found '\(nextToken!.str)'.", type:LogType.Error, position:nextToken!.position)
             return false
         }
         returnToParentNode()
@@ -251,7 +251,7 @@ class Parser {
         } else if nextToken?.type == TokenType.t_identifier {
             id()
         } else {
-            log("Expecting expression. Instead found \(nextToken!.str)", type:LogType.Error, position: nextToken!.position)
+            log("Expecting expression. Instead found '\(nextToken!.str)'.", type:LogType.Error, position: nextToken!.position)
         }
         returnToParentNode()
     }
@@ -350,6 +350,10 @@ class Parser {
     }
     
     func matchToken(type: TokenType){
+        if hasError {
+            nextToken = nil
+            return
+        }
         if nextToken?.type == type {
             log("Parsing: \(nextToken!.str)   \t ... ", type:LogType.Match, position:nextToken!.position)
             addLeafNode(nextToken!)
@@ -361,7 +365,7 @@ class Parser {
             }
         } else {
             if let nextType = nextToken?.type.rawValue {
-                log("Expected \(type.rawValue). Found '\(nextToken!.str)'", type:LogType.Error, position:nextToken!.position)
+                log("Expected \(type.rawValue). Instead found '\(nextToken!.str)'", type:LogType.Error, position:nextToken!.position)
             }
             nextToken = nil
         }
