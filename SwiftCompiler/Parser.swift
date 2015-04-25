@@ -89,9 +89,7 @@ class Parser {
         hasError = false
     }
     
-    func log(output: String, type: LogType?=LogType.Message, position:(Int, Int)?=nil, profile:OutputProfile?=OutputProfile.EndUser){
-        var finalOutput = output
-        
+    func log(output: String, type: LogType?=LogType.Message, position:(Int, Int)?=nil, profile:OutputProfile = .EndUser){        
         if type == LogType.Error {
             hasError = true
         }
@@ -99,7 +97,7 @@ class Parser {
         let log: Log = Log(output: output, phase: "Parse")
         log.position = position
         log.type = type!
-        log.profile = profile!
+        log.profile = profile
         appdelegate!.log(log)
     }
     
@@ -143,6 +141,9 @@ class Parser {
     }
     
     func statementList(){
+        if hasError {
+            return
+        }
         log("Began parsing statement list.", profile:.Verbose)
         addBranchNode(GrammarType.StatementList)
         if nextToken != nil && nextToken?.type != TokenType.t_braceR {
@@ -228,6 +229,9 @@ class Parser {
     }
     
     func expr(){
+        if hasError {
+            return
+        }
         log("Parsing expression.", profile:.Verbose)
         addBranchNode(GrammarType.Expr)
         if nextToken == nil {
@@ -247,6 +251,9 @@ class Parser {
     }
     
     func intExpr(){
+        if hasError {
+            return
+        }
         log("Parsing int statement.", profile:.Verbose)
         addBranchNode(GrammarType.IntExpr)
         digit()
@@ -258,6 +265,9 @@ class Parser {
     }
     
     func stringExpr(){
+        if hasError {
+            return
+        }
         log("Parsing string statement.", profile:.Verbose)
         addBranchNode(GrammarType.StringExpr)
         matchToken(TokenType.t_quote)
@@ -267,6 +277,9 @@ class Parser {
     }
     
     func booleanExpr(){
+        if hasError {
+            return
+        }
         log("Parsing boolean statement.", profile:.Verbose)
         addBranchNode(GrammarType.BoolExpr)
         if nextToken?.type == TokenType.t_boolval {
@@ -282,6 +295,9 @@ class Parser {
     }
     
     func id(){
+        if hasError {
+            return
+        }
         log("Parsing identifier.", profile:.Verbose)
         addBranchNode(GrammarType.Id)
         matchToken(TokenType.t_identifier)
@@ -289,6 +305,9 @@ class Parser {
     }
     
     func charList(){
+        if hasError {
+            return
+        }
         log("Parsing character list.", profile:.Verbose)
         if nextToken?.type == TokenType.t_string {
             matchToken(TokenType.t_string)
@@ -318,6 +337,9 @@ class Parser {
     }
     
     func boolop(){
+        if hasError {
+            return
+        }
         log("Parsing boolean operation.", profile:.Verbose)
         addBranchNode(GrammarType.boolop)
         matchToken(TokenType.t_boolop)
@@ -339,14 +361,20 @@ class Parser {
     }
     
     func addBranchNode(type: GrammarType){
+        log("Added branch node '\(type.rawValue)' to CST.", profile:.Everything)
         cst!.addBranch(Grammar(type: type))
     }
     
     func addLeafNode(token: Token){
+        log("Added leaf node '\(token.str)' to CST.", profile:.Everything)
         cst!.addGrammar(Grammar(token: token))
     }
     
     func returnToParentNode(){
+        if hasError {
+            return
+        }
+        log("Climbing up a branch in CST.", type:.Useless, profile:.Everything)
         cst!.cur = cst?.cur?.parent
     }
     

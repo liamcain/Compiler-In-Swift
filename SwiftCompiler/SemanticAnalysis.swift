@@ -44,7 +44,6 @@ class Scope {
     }
     
     func addSymbol(strType: String, name: String, token: Token){
-        var symbol: Symbol
         switch(strType){
         case "string":  symbols[name] = Symbol(type: VarType.String,  token: token)
         case "boolean": symbols[name] = Symbol(type: VarType.Boolean, token: token)
@@ -84,16 +83,11 @@ class SemanticAnalysis {
     var hasError: Bool
     
     init(){
-        appdelegate = NSApplication.sharedApplication().delegate as! AppDelegate
+        appdelegate = (NSApplication.sharedApplication().delegate as! AppDelegate)
         hasError = false
     }
 
-    func log(output: String, type: LogType, position:(Int, Int)){
-
-        var finalOutput = output
-        let row = position.0
-        let col = position.1
-        
+    func log(output: String, type: LogType = .Message, position:(Int, Int)?=nil, profile: OutputProfile = .EndUser){
         if type == LogType.Error {
             hasError = true
         }
@@ -120,11 +114,11 @@ class SemanticAnalysis {
         appdelegate!.log("\n------------")
         appdelegate!.log("Symbol Table")
         appdelegate!.log("------------")
-        showScope(symbolTable!)
         
         if hasError {
             return nil
         } else {
+            showScope(symbolTable!)
             showWarnings()
             appdelegate!.log("\n---\nAST\n---")
             appdelegate!.log(ast!.showTree())
@@ -165,6 +159,16 @@ class SemanticAnalysis {
         warningsAtScope(symbolTable)
     }
     
+    private func addBranchNode(branch: Grammar){
+        if branch.token != nil {
+            log("Creating branch node in AST with value '\(branch.token!.str)'.", type:.Match, profile:.Verbose)
+        } else {
+            log("Creating branch node in AST with value '\(branch.type!.rawValue)'.", type:.Match, profile:.Verbose)
+        }
+        
+        ast?.addBranch(branch)
+    }
+    
     private func getSymbol(token: Token, recurse:Bool=true) -> Symbol? {
         let symbol = currentScope?.getSymbol(token.str, recurse: recurse)
         if symbol != nil {
@@ -197,22 +201,22 @@ class SemanticAnalysis {
         if hasError {
             return nil
         }
+        log("Checking type of '\(node.value.type!.rawValue)' node's children:", profile:.Verbose)
         
         var type: VarType? = nil
-
         
         for c in node.children {
             
             var childType: VarType?
             if c.hasChildren() {
                 childType = checkType(c)
-                
             } else {
                 childType = getTypeFromNode(c)
             }
             if childType == nil {
                 return nil
             }
+            log("Child has type: \(childType!.rawValue).", profile:.Everything)
             
             if type == nil {
                 type = childType
@@ -223,13 +227,24 @@ class SemanticAnalysis {
                 }
             }
         }
+        if type != nil {
+            log("Type checks out. Each child is of type '\(type!.rawValue)'", type:.Match, profile:.Verbose)
+        } else {
+            log("Type checks out. Children do not have a type.", type:.Match, profile:.Verbose)
+        }
+        
         if node.value.type == GrammarType.boolop {
+            log("Returning type 'Boolean'.", profile:.Everything)
             return VarType.Boolean
         }
         return type
     }
     
     func returnToParentNode(){
+        if hasError {
+            return
+        }
+        log("Climbing up a branch in AST.", type:.Useless, profile:.Everything)
         ast!.cur = ast?.cur?.parent
     }
     
@@ -237,9 +252,12 @@ class SemanticAnalysis {
         for c in node.children {
             if c.value.type == GrammarType.boolop || c.value.type == GrammarType.intop {
                 c.children[0].value.type = c.value.type
-                return c.children[0].value
+                let op = c.children[0].value
+                log("Found operator '\(op)'. Will add as a branch to the AST.", profile:.Verbose)
+                return op
             }
         }
+        log("Could not find operator within node '\(node.value.token?.str)'.", profile:.Verbose)
         return nil
     }
     
@@ -258,10 +276,12 @@ class SemanticAnalysis {
             let newNode = ast?.addGrammar(n!.value)
             newNode?.value.token?.str = str
             newNode?.value.type = GrammarType.string
-            
+            log("Found [Char]. Collapsing to form string '\(str)'.", profile:.Verbose)
         case .IntExpr, .BoolExpr:
             if count(node!.children) > 1 {
-                ast?.addBranch(getOperator(node!)!)
+                log("Expression has multiple operands.", profile:.Verbose)
+                addBranchNode(getOperator(node!)!)
+                log("Recursing...", type:.Useless, profile:.Verbose)
                 for c in node!.children {
                     convertNode(c)
                 }
@@ -269,15 +289,16 @@ class SemanticAnalysis {
                     return
                 }
                 returnToParentNode()
-                
             } else {
+                log("Recursing...", type:.Useless, profile:.Verbose)
                 for c in node!.children {
                     convertNode(c)
                 }
             }
             
         case .AssignmentStatement, .PrintStatement:
-            ast?.addBranch(node!.value)
+            addBranchNode(node!.value)
+            log("Recursing...", type:.Useless, profile:.Verbose)
             for c in node!.children {
                 convertNode(c)
             }
@@ -287,7 +308,7 @@ class SemanticAnalysis {
             returnToParentNode()
             
         case .VarDecl:
-            ast?.addBranch(node!.value)
+            addBranchNode(node!.value)
             for c in node!.children {
                 convertNode(c)
             }
@@ -299,6 +320,7 @@ class SemanticAnalysis {
                 log("Variable with the name '\(name.token!.str)' has already been declared on line \(lineNum).", type: LogType.Error, position:name.token!.position)
                 return
             }
+            log("Adding symbol '\(type.token!.str) \(name.token!.str)' to the symbol table.", profile:.Verbose)
             currentScope?.addSymbol(type.token!.str, name: name.token!.str, token:name.token!)
             returnToParentNode()
             
@@ -307,7 +329,8 @@ class SemanticAnalysis {
             newNode?.value.type = node!.value.type
             
         case .IfStatement, .WhileStatement:
-            ast?.addBranch(node!.value)
+            addBranchNode(node!.value)
+            log("Recursing...", type:.Useless, profile:.Verbose)
             for c in node!.children {
                 convertNode(c)
             }
@@ -318,13 +341,15 @@ class SemanticAnalysis {
             currentScope?.adopt(newScope)
             currentScope = newScope
             
-            ast?.addBranch(node!.value)
+            addBranchNode(node!.value)
+            log("Recursing...", type:.Useless, profile:.Verbose)
             for c in node!.children {
                 convertNode(c)
             }
             returnToParentNode()
             currentScope = currentScope?.parentScope
         default:
+            log("Nothing important on the level '\(node!.value.type!.rawValue)'. We must go deeper.\nRecursing...", type:.Useless, profile:.Verbose)
             for c in node!.children {
                 convertNode(c)
             }
@@ -332,6 +357,7 @@ class SemanticAnalysis {
     }
     
     func createAST(cst: GrammarTree) {
+            log("Began creating AST from CST.", profile:.Verbose)
             convertNode(cst.root)
     }
     

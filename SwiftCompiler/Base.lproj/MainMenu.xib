@@ -491,7 +491,7 @@
                             <outlet property="delegate" destination="-2" id="QaE-JL-K9G"/>
                         </connections>
                     </splitView>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wpM-rU-y2R">
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wpM-rU-y2R">
                         <rect key="frame" x="18" y="1" width="109" height="17"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Line 0, Column 0" id="COs-9e-yvK">
                             <font key="font" metaFont="smallSystem"/>
@@ -499,42 +499,12 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <textField hidden="YES" toolTip="How much do you want to show in the output?" horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jse-SH-V8K">
-                        <rect key="frame" x="637" y="2" width="95" height="17"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Output Profile:" id="tjv-8x-9nl">
-                            <font key="font" metaFont="smallSystem"/>
-                            <color key="textColor" name="windowFrameColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
-                    <popUpButton hidden="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vbk-T9-XDj">
-                        <rect key="frame" x="736" y="2" width="155" height="20"/>
-                        <constraints>
-                            <constraint firstAttribute="width" constant="155" id="iIM-Ua-nB8"/>
-                        </constraints>
-                        <popUpButtonCell key="cell" type="bevel" title="End User" bezelStyle="regularSquare" imagePosition="left" alignment="justified" lineBreakMode="truncatingTail" state="on" inset="2" selectedItem="Ihu-SE-T6K" id="uAD-Zv-YRe">
-                            <behavior key="behavior" lightByContents="YES"/>
-                            <font key="font" metaFont="smallSystem"/>
-                            <menu key="menu" id="HUp-0Z-gnv">
-                                <items>
-                                    <menuItem title="End User" state="on" id="Ihu-SE-T6K">
-                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                    </menuItem>
-                                    <menuItem title="Verbose" id="PAE-OC-52F"/>
-                                    <menuItem title="Tell me everything" id="1Mv-97-KHh"/>
-                                </items>
-                            </menu>
-                        </popUpButtonCell>
-                    </popUpButton>
                 </subviews>
                 <constraints>
                     <constraint firstAttribute="trailing" secondItem="kJ1-tU-9ai" secondAttribute="trailing" id="0Vk-I9-OfN"/>
                     <constraint firstItem="kJ1-tU-9ai" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" id="2MT-hY-biM"/>
-                    <constraint firstItem="vbk-T9-XDj" firstAttribute="leading" secondItem="Jse-SH-V8K" secondAttribute="trailing" constant="8" id="5x4-xw-1IG"/>
-                    <constraint firstAttribute="bottom" secondItem="vbk-T9-XDj" secondAttribute="bottom" constant="2" id="OZy-BI-CVy"/>
-                    <constraint firstAttribute="trailing" secondItem="vbk-T9-XDj" secondAttribute="trailing" constant="20" id="cQ2-gv-o8w"/>
+                    <constraint firstItem="wpM-rU-y2R" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="NWs-Y9-eoP"/>
                     <constraint firstItem="kJ1-tU-9ai" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" id="g9w-tD-CnN"/>
-                    <constraint firstAttribute="bottom" secondItem="Jse-SH-V8K" secondAttribute="bottom" constant="2" id="gqz-Dx-NQf"/>
                     <constraint firstAttribute="bottom" secondItem="wpM-rU-y2R" secondAttribute="bottom" constant="3" id="njU-3K-Z2s"/>
                     <constraint firstItem="wpM-rU-y2R" firstAttribute="top" secondItem="kJ1-tU-9ai" secondAttribute="bottom" constant="3" id="uNX-za-8WN"/>
                 </constraints>

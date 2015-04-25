@@ -54,7 +54,7 @@ class RulerView: NSRulerView {
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-        clientView = scrollView!.documentView as! NSView
+        clientView = (scrollView!.documentView as! NSView)
         ruleThickness = CGFloat(DEFAULT_THICKNESS)
         needsDisplay = true
     }

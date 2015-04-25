@@ -26,6 +26,7 @@ public enum LogType {
     case Match
     case Error
     case Warning
+    case Useless
 }
 
 public class Log {
@@ -175,6 +176,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
             case .Match:
                 str = "\(log.output)\n"
                 logString(str, color:matchColor())
+            case .Useless:
+                str = "\(log.output)\n"
+                logString(str, color:uselessColor())
             case .Message:
                 str = "\(log.output)\n"
                 logString(str, color:mutedColor())

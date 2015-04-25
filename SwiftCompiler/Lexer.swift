@@ -75,9 +75,7 @@ class Lexer {
         appdelegate = (NSApplication.sharedApplication().delegate as! AppDelegate)
     }
     
-    func log(output: String, type: LogType?=LogType.Message, tokenType:TokenType?=nil, profile:OutputProfile?=OutputProfile.EndUser){
-        var finalOutput = output
-        
+    func log(output: String, type: LogType?=LogType.Message, tokenType:TokenType?=nil, profile:OutputProfile = .EndUser){
         if type == LogType.Error {
             hasError = true
         }
@@ -85,7 +83,7 @@ class Lexer {
         let log: Log = Log(output: output, phase: "Lex")
         log.position = (lineNum, linePos)
         log.type = type!
-        log.profile = profile!
+        log.profile = profile
         appdelegate!.log(log)
     }
     
