@@ -75,11 +75,7 @@ class Lexer {
         appdelegate = (NSApplication.sharedApplication().delegate as! AppDelegate)
     }
     
-    func log(string:String, color: NSColor) {
-//        appdelegate!.log(string, color: color)
-    }
-    
-    func log(output: String, type: LogType, tokenType:TokenType?=nil){
+    func log(output: String, type: LogType?=LogType.Message, tokenType:TokenType?=nil, profile:OutputProfile?=OutputProfile.EndUser){
         var finalOutput = output
         
         if type == LogType.Error {
@@ -88,7 +84,8 @@ class Lexer {
         
         let log: Log = Log(output: output, phase: "Lex")
         log.position = (lineNum, linePos)
-        log.type = type
+        log.type = type!
+        log.profile = profile!
         appdelegate!.log(log)
     }
     
@@ -138,9 +135,11 @@ class Lexer {
                         linePos += forward-i
                         i = forward
                     } else {
+                        log("'\(tokenSoFar)' did not match any keywords. Must continue to look forward.", profile:.Verbose)
                         ++forward
                     }
                 default:
+                    log("Reached word barrier without finding keyword. Will lex single character as identifier and move on.", profile:.Verbose)
                     lexState = LexState.Default
                     createToken(s, type:TokenType.t_identifier)
                 }
@@ -156,13 +155,16 @@ class Lexer {
                         ++lineNum
                         linePos = 0
                     case ~/"[\\s\\t]":
+                        log("Found whitespace. Ignoring.", type:LogType.Message, profile:.Verbose)
                         break
                     case quote:
                         lexState = LexState.String
                         createToken(s, type:TokenType.t_quote)
+                        log("Entering 'string' state. Subsequent characters will be parsed as chars.", profile:.Verbose)
                     case ~/"[a-z]":
                         lexState = LexState.Searching
                         forward = i+1
+                        log("Found character. Checking if this is the start of a keyword.", profile:.Verbose)
                     case ~/"[0-9]":
                         createToken(s, type:TokenType.t_digit)
                     case "+":
@@ -199,6 +201,7 @@ class Lexer {
                     case quote:
                         createToken(s, type:TokenType.t_quote)
                         lexState = LexState.Default
+                        log("Exiting 'string' state. Subsequent characters will be parsed normally.", profile:.Verbose)
                     case ~/"[a-z ]":
                         createToken(s, type:TokenType.t_string)
                     case "\n": // Special case so that '\n' prints out correctly

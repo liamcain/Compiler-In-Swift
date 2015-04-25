@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7528.3" systemVersion="14C1510" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7519.1" systemVersion="14D131" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7528.3"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7519.1"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -22,7 +22,6 @@
                 <outlet property="overlayText" destination="hlL-b3-qet" id="0be-au-uRO"/>
                 <outlet property="runButton" destination="Rfy-Dk-a69" id="rQw-wg-jUK"/>
                 <outlet property="splitView" destination="kJ1-tU-9ai" id="cKm-c1-Hzq"/>
-                <outlet property="verboseToggle" destination="qyb-HY-BeD" id="axi-kA-R5S"/>
                 <outlet property="window" destination="QvC-M9-y7g" id="gIp-Ho-8D9"/>
             </connections>
         </customObject>
@@ -324,12 +323,30 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="Evf-gr-J3R"/>
-                            <menuItem title="Enable Verbose" id="qyb-HY-BeD">
-                                <attributedString key="attributedTitle"/>
+                            <menuItem title="Output Profile" id="fgC-6X-5JN">
                                 <modifierMask key="keyEquivalentModifierMask"/>
-                                <connections>
-                                    <action selector="verboseToggle:" target="Voe-Tx-rLC" id="G7Y-Hk-Fnx"/>
-                                </connections>
+                                <menu key="submenu" title="Output Profile" id="jYa-B8-Vnj">
+                                    <items>
+                                        <menuItem title="End User" state="on" id="Ecj-b7-T0J">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="setOutputProfile:" target="Voe-Tx-rLC" id="Wcp-LJ-Fln"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Verbose" id="nkA-r5-oiu">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="setOutputProfile:" target="Voe-Tx-rLC" id="mXO-VN-Amp"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Tell me everything" id="JGY-zu-CLp">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="setOutputProfile:" target="Voe-Tx-rLC" id="8AF-B6-QyZ"/>
+                                            </connections>
+                                        </menuItem>
+                                    </items>
+                                </menu>
                             </menuItem>
                         </items>
                     </menu>
@@ -377,7 +394,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="335" y="390" width="911" height="710"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1177"/>
             <view key="contentView" id="EiT-Mj-1SZ">
                 <rect key="frame" x="0.0" y="0.0" width="911" height="710"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -475,18 +492,49 @@
                         </connections>
                     </splitView>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wpM-rU-y2R">
-                        <rect key="frame" x="18" y="2" width="109" height="17"/>
+                        <rect key="frame" x="18" y="1" width="109" height="17"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Line 0, Column 0" id="COs-9e-yvK">
                             <font key="font" metaFont="smallSystem"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <textField hidden="YES" toolTip="How much do you want to show in the output?" horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jse-SH-V8K">
+                        <rect key="frame" x="637" y="2" width="95" height="17"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Output Profile:" id="tjv-8x-9nl">
+                            <font key="font" metaFont="smallSystem"/>
+                            <color key="textColor" name="windowFrameColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <popUpButton hidden="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vbk-T9-XDj">
+                        <rect key="frame" x="736" y="2" width="155" height="20"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="155" id="iIM-Ua-nB8"/>
+                        </constraints>
+                        <popUpButtonCell key="cell" type="bevel" title="End User" bezelStyle="regularSquare" imagePosition="left" alignment="justified" lineBreakMode="truncatingTail" state="on" inset="2" selectedItem="Ihu-SE-T6K" id="uAD-Zv-YRe">
+                            <behavior key="behavior" lightByContents="YES"/>
+                            <font key="font" metaFont="smallSystem"/>
+                            <menu key="menu" id="HUp-0Z-gnv">
+                                <items>
+                                    <menuItem title="End User" state="on" id="Ihu-SE-T6K">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                    </menuItem>
+                                    <menuItem title="Verbose" id="PAE-OC-52F"/>
+                                    <menuItem title="Tell me everything" id="1Mv-97-KHh"/>
+                                </items>
+                            </menu>
+                        </popUpButtonCell>
+                    </popUpButton>
                 </subviews>
                 <constraints>
                     <constraint firstAttribute="trailing" secondItem="kJ1-tU-9ai" secondAttribute="trailing" id="0Vk-I9-OfN"/>
                     <constraint firstItem="kJ1-tU-9ai" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" id="2MT-hY-biM"/>
+                    <constraint firstItem="vbk-T9-XDj" firstAttribute="leading" secondItem="Jse-SH-V8K" secondAttribute="trailing" constant="8" id="5x4-xw-1IG"/>
+                    <constraint firstAttribute="bottom" secondItem="vbk-T9-XDj" secondAttribute="bottom" constant="2" id="OZy-BI-CVy"/>
+                    <constraint firstAttribute="trailing" secondItem="vbk-T9-XDj" secondAttribute="trailing" constant="20" id="cQ2-gv-o8w"/>
                     <constraint firstItem="kJ1-tU-9ai" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" id="g9w-tD-CnN"/>
+                    <constraint firstAttribute="bottom" secondItem="Jse-SH-V8K" secondAttribute="bottom" constant="2" id="gqz-Dx-NQf"/>
                     <constraint firstAttribute="bottom" secondItem="wpM-rU-y2R" secondAttribute="bottom" constant="3" id="njU-3K-Z2s"/>
                     <constraint firstItem="wpM-rU-y2R" firstAttribute="top" secondItem="kJ1-tU-9ai" secondAttribute="bottom" constant="3" id="uNX-za-8WN"/>
                 </constraints>
@@ -522,7 +570,7 @@
         <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="alertPanel" id="gkw-W8-yjH" customClass="NSPanel">
             <windowStyleMask key="styleMask" utility="YES" HUD="YES"/>
             <rect key="contentRect" x="655" y="409" width="374" height="126"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1177"/>
             <view key="contentView" id="I3G-l7-tUI">
                 <rect key="frame" x="0.0" y="0.0" width="374" height="126"/>
                 <autoresizingMask key="autoresizingMask"/>

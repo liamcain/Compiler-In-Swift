@@ -89,11 +89,8 @@ class Parser {
         hasError = false
     }
     
-    func log(output: String, type: LogType, position:(Int, Int)){
+    func log(output: String, type: LogType?=LogType.Message, position:(Int, Int)?=nil, profile:OutputProfile?=OutputProfile.EndUser){
         var finalOutput = output
-        
-        let row = position.0
-        let col = position.1
         
         if type == LogType.Error {
             hasError = true
@@ -101,7 +98,8 @@ class Parser {
         
         let log: Log = Log(output: output, phase: "Parse")
         log.position = position
-        log.type = type
+        log.type = type!
+        log.profile = profile!
         appdelegate!.log(log)
     }
     
@@ -126,6 +124,7 @@ class Parser {
     }
     
     func program(){
+        log("Began parsing program.", profile:.Verbose)
         addBranchNode(GrammarType.Program)
         block()
         returnToParentNode()
@@ -134,6 +133,7 @@ class Parser {
     
     func block(){
         if nextToken != nil {
+            log("Began parsing block.", profile:.Verbose)
             matchToken(TokenType.t_braceL)
             addBranchNode(GrammarType.Block)
             statementList()
@@ -143,6 +143,7 @@ class Parser {
     }
     
     func statementList(){
+        log("Began parsing statement list.", profile:.Verbose)
         addBranchNode(GrammarType.StatementList)
         if nextToken != nil && nextToken?.type != TokenType.t_braceR {
             if statement() {
@@ -153,6 +154,7 @@ class Parser {
     }
     
     func statement() -> Bool {
+        log("Began parsing statement.", profile:.Verbose)
         addBranchNode(GrammarType.Statement)
         if nextToken == nil {
             return true
@@ -178,6 +180,7 @@ class Parser {
     
     func printStatement(){
         if nextToken != nil {
+            log("Parsing print statement.", profile:.Verbose)
             addBranchNode(GrammarType.PrintStatement)
             matchToken(TokenType.t_print)
             matchToken(TokenType.t_parenL)
@@ -189,6 +192,7 @@ class Parser {
     
     func assignmentStatement(){
         if nextToken != nil {
+            log("Parsing assignment statement.", profile:.Verbose)
             addBranchNode(GrammarType.AssignmentStatement)
             id()
             matchToken(TokenType.t_assign)
@@ -198,6 +202,7 @@ class Parser {
     }
     
     func varDecl(){
+        log("Parsing variable declaration.", profile:.Verbose)
         addBranchNode(GrammarType.VarDecl)
         type()
         id()
@@ -205,6 +210,7 @@ class Parser {
     }
     
     func whileStatement(){
+        log("Parsing while statement.", profile:.Verbose)
         addBranchNode(GrammarType.WhileStatement)
         matchToken(TokenType.t_while)
         booleanExpr()
@@ -213,6 +219,7 @@ class Parser {
     }
     
     func ifStatement(){
+        log("Parsing if statement.", profile:.Verbose)
         addBranchNode(GrammarType.IfStatement)
         matchToken(TokenType.t_if)
         booleanExpr()
@@ -221,6 +228,7 @@ class Parser {
     }
     
     func expr(){
+        log("Parsing expression.", profile:.Verbose)
         addBranchNode(GrammarType.Expr)
         if nextToken == nil {
             return
@@ -239,6 +247,7 @@ class Parser {
     }
     
     func intExpr(){
+        log("Parsing int statement.", profile:.Verbose)
         addBranchNode(GrammarType.IntExpr)
         digit()
         if nextToken?.type == TokenType.t_intop {
@@ -249,6 +258,7 @@ class Parser {
     }
     
     func stringExpr(){
+        log("Parsing string statement.", profile:.Verbose)
         addBranchNode(GrammarType.StringExpr)
         matchToken(TokenType.t_quote)
         charList()
@@ -257,6 +267,7 @@ class Parser {
     }
     
     func booleanExpr(){
+        log("Parsing boolean statement.", profile:.Verbose)
         addBranchNode(GrammarType.BoolExpr)
         if nextToken?.type == TokenType.t_boolval {
             boolval()
@@ -271,12 +282,14 @@ class Parser {
     }
     
     func id(){
+        log("Parsing identifier.", profile:.Verbose)
         addBranchNode(GrammarType.Id)
         matchToken(TokenType.t_identifier)
         returnToParentNode()
     }
     
     func charList(){
+        log("Parsing character list.", profile:.Verbose)
         if nextToken?.type == TokenType.t_string {
             matchToken(TokenType.t_string)
             charList()
@@ -284,36 +297,42 @@ class Parser {
     }
     
     func type(){
+        log("Parsing type.", profile:.Verbose)
         addBranchNode(GrammarType.type)
         matchToken(TokenType.t_type)
         returnToParentNode()
     }
     
     func string(){
+        log("Parsing string.", profile:.Verbose)
         addBranchNode(GrammarType.string)
         matchToken(TokenType.t_string)
         returnToParentNode()
     }
     
     func digit(){
+        log("Parsing digit.", profile:.Verbose)
         addBranchNode(GrammarType.digit)
         matchToken(TokenType.t_digit)
         returnToParentNode()
     }
     
     func boolop(){
+        log("Parsing boolean operation.", profile:.Verbose)
         addBranchNode(GrammarType.boolop)
         matchToken(TokenType.t_boolop)
         returnToParentNode()
     }
     
     func boolval(){
+        log("Parsing boolean value.", profile:.Verbose)
         addBranchNode(GrammarType.boolval)
         matchToken(TokenType.t_boolval)
         returnToParentNode()
     }
     
     func intop(){
+        log("Parsing int operation.", profile:.Verbose)
         addBranchNode(GrammarType.intop)
         matchToken(TokenType.t_intop)
         returnToParentNode()
@@ -344,8 +363,10 @@ class Parser {
             nextToken = nil
             return
         }
+        log("Looking for token of type: \"\(type.rawValue)\".", profile:.Verbose)
+        
         if nextToken?.type == type {
-            log("Parsing: \(stringOutput(nextToken!.str))   \t ... ", type:LogType.Match, position:nextToken!.position)
+            log("Matching token: \(nextToken!.str)", type:LogType.Match, position:nextToken!.position)
             addLeafNode(nextToken!)
             ++index
             if index < count(tokenStream!) {

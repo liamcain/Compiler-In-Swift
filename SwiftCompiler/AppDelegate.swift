@@ -15,13 +15,17 @@ extension Dictionary {
         }
     }
 }
+public enum OutputProfile: Int {
+    case EndUser = 1
+    case Verbose = 2
+    case Everything = 3
+}
 
 public enum LogType {
     case Message
     case Match
     case Error
     case Warning
-    case Verbose
 }
 
 public class Log {
@@ -30,6 +34,7 @@ public class Log {
     var type: LogType         = LogType.Message
     var color: NSColor?       = nil
     var position: (Int, Int)? = nil
+    var profile: OutputProfile = OutputProfile.EndUser
     
     init(output:String, phase: String){
         self.output = output
@@ -63,7 +68,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
     var tokenStream: [Token]?
     var defaultSnippets: Dictionary<String, String> = Dictionary()
     var customSnippets: Dictionary<String, String>  = Dictionary()
-    var verboseToggle: Bool = false
+    var selectedProfile: OutputProfile = OutputProfile.EndUser
     
     @IBAction func createSnippetPressed(sender: AnyObject) {
         let name = "Test Case \(customSnippets.count)"
@@ -73,16 +78,24 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
         Defaults.synchronize()
     }
     
-    @IBAction func verboseToggle(sender: NSMenuItem) {
-        verboseToggle = !verboseToggle
-        if verboseToggle {
-            sender.title = "Disable Verbose"
-        } else {
-            sender.title = "Enable Verbose"
+    @IBAction func setOutputProfile(sender: NSMenuItem) {
+        switch sender.title {
+            case "End User":
+                selectedProfile = OutputProfile.EndUser
+            case "Verbose":
+                selectedProfile = OutputProfile.Verbose
+            case "Tell me everything":
+                selectedProfile = OutputProfile.Everything
+            default: ()
         }
+        for c in sender.parentItem!.submenu!.itemArray {
+            let m = c as! NSMenuItem
+            m.state = NSOffState
+        }
+        sender.state = NSOnState
     }
     
-
+    
     @IBAction func compileMenuItemPressed(sender: AnyObject) {
         self.compile()
     }
@@ -150,21 +163,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
     
     func log(log: Log){
         var str: String
-        switch log.type {
-        case .Warning:
-            str = "[\(log.phase)] Warning at position \(log.position!.0):\(log.position!.1)] \(log.output)\n"
-            logString(str, color:warningColor())
-        case .Error:
-            str = "[\(log.phase)] Error at position \(log.position!.0):\(log.position!.1)] \(log.output)\n"
-            logString(str, color:errorColor())
-        case .Match:
-            str = "\(log.output)\n"
-            logString(str, color:matchColor())
-        case .Message:
-            str = "\(log.output)\n"
-            logString(str, color:mutedColor())
-        case .Verbose:
-            if verboseToggle {
+        
+        if selectedProfile.rawValue >= log.profile.rawValue {
+            switch log.type {
+            case .Warning:
+                str = "[\(log.phase) Warning at position \(log.position!.0):\(log.position!.1)] \(log.output)\n"
+                logString(str, color:warningColor())
+            case .Error:
+                str = "[\(log.phase) Error at position \(log.position!.0):\(log.position!.1)] \(log.output)\n"
+                logString(str, color:errorColor())
+            case .Match:
+                str = "\(log.output)\n"
+                logString(str, color:matchColor())
+            case .Message:
                 str = "\(log.output)\n"
                 logString(str, color:mutedColor())
             }
