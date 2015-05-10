@@ -17,10 +17,12 @@ class Node<T> {
     weak var parent: Node<T>?
     var children: [Node]
     var value: T
+    var id: Int
     
     init(t:T){
         children = Array<Node>()
         value = t
+        id = 0
     }
     
     func addChild(childValue: T){
@@ -46,6 +48,7 @@ class Tree<T> {
     
     init(root: T) {
         self.root = Node(t: root)
+        self.root?.id = 0
     }
 }
 
@@ -54,17 +57,22 @@ class GrammarTree {
     var root: Node<Grammar>?
     weak var cur:  Node<Grammar>?
     private var traversalResult: String
+    private var latestId: Int
+    var graphvizFile: String?
     
     init(){
         root = nil
         cur  = nil
         traversalResult = ""
+        latestId = 1
     }
     
     init(rootValue: Grammar) {
         root = Node<Grammar>(t:rootValue)
+        root?.id = 0
         cur = root
         traversalResult = ""
+        latestId = 0
     }
     
     func addBranch(value: Grammar){
@@ -78,6 +86,7 @@ class GrammarTree {
     
     func addGrammar(value: Grammar) -> Node<Grammar> {
         var node: Node<Grammar> = Node(t: value)
+        node.id = latestId
         
         if(root == nil){
             root = node
@@ -85,34 +94,71 @@ class GrammarTree {
             node.parent = cur;
             cur?.addChild(node)
         }
+        latestId++
         return node
     }
     
-    func expand(node: Node<Grammar>, depth: Int){
-        traversalResult += "\n"
-        for (var i = 0; i < depth; i++){
-            traversalResult += "-"
-        }
-        
-        if (count(node.children) == 0){
-            traversalResult += "["
-            traversalResult += node.value.description
-            traversalResult += "]"
-        } else {
-            traversalResult += "<"
-            traversalResult += (node.value.description)
-            traversalResult += ">"
-            for (var i = 0; i < node.children.count; i++) {
-                expand(node.children[i], depth: depth + 1)
+//    func expand(node: Node<Grammar>, depth: Int){
+//        traversalResult += "\n"
+//        for (var i = 0; i < depth; i++){
+//            traversalResult += "-"
+//        }
+//        
+//        if (count(node.children) == 0){
+//            traversalResult += "["
+//            traversalResult += node.value.description
+//            traversalResult += "]"
+//        } else {
+//            traversalResult += "<"
+//            traversalResult += (node.value.description)
+//            traversalResult += ">"
+//            for (var i = 0; i < node.children.count; i++) {
+//                expand(node.children[i], depth: depth + 1)
+//            }
+//        }
+//    }
+    
+    func expand(node: Node<Grammar>) -> String {
+        var str = "\"\(node.id)\" [label = \"\(node.value.description)\"]\n"
+        if node.hasChildren() {
+            for n in node.children {
+                str += "\"\(node.id)\" -> \"\(n.id)\"\n"
+                str += expand(n)
             }
+        }
+        return str
+    }
+    
+    func shell(args: String...) -> Int32 {
+        let task = NSTask()
+        task.launchPath = "/usr/local/bin/dot"
+        task.arguments = args
+        task.launch()
+        task.waitUntilExit()
+        return task.terminationStatus
+    }
+    
+    func convertToGV(filename: String) {
+        if(root == nil){
+            return
+        }
+        var fileContents: String = "digraph canonical {\n"
+        fileContents += expand(root!)
+        fileContents += "\n}"
+        
+        let fullPath = NSTemporaryDirectory() + filename
+        graphvizFile = fullPath + ".pdf"
+        
+        if fileContents.writeToFile(fullPath, atomically: false, encoding: NSUTF8StringEncoding, error: nil) {
+            shell("-Tpdf", fullPath, "-o", graphvizFile!)
         }
     }
     
-    func showTree() -> String {
-        traversalResult = ""
-        if root != nil {
-            expand(root!, depth: 0)
-        }
-        return traversalResult
-    }
+//    func showTree() -> String {
+//        traversalResult = ""
+//        if root != nil {
+//            expand(root!, depth: 0)
+//        }
+//        return traversalResult
+//    }
 }

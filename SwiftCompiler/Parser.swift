@@ -113,8 +113,8 @@ class Parser {
         }
         
         if !hasError {
-            log("\n---\nCST\n---", type: LogType.Message, position:(0,0))
-            log(cst!.showTree(), type: LogType.Message, position:(0,0))
+//            log(cst!.showTree(), type: LogType.Message, position:(0,0))
+            cst!.convertToGV("cst.gv")
             return cst
         } else {
             return nil

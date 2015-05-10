@@ -95,6 +95,7 @@ class SemanticAnalysis {
         let log: Log = Log(output: output, phase: "Semantic Analysis")
         log.position = position
         log.type = type
+        log.profile = profile;
         appdelegate!.log(log)
     }
     
@@ -120,8 +121,8 @@ class SemanticAnalysis {
         } else {
             showScope(symbolTable!)
             showWarnings()
-            appdelegate!.log("\n---\nAST\n---")
-            appdelegate!.log(ast!.showTree())
+//            appdelegate!.log(ast!.showTree())
+            ast!.convertToGV("ast.gv");
             
             return ast
         }

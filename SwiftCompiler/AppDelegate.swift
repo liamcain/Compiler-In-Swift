@@ -7,6 +7,7 @@
 //
 
 import Cocoa
+import WebKit
 
 extension Dictionary {
     mutating func merge<K, V>(dict: [K: V]){
@@ -53,7 +54,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
     @IBOutlet weak var overlayPanel: NSPanel!
     @IBOutlet weak var overlayText: NSTextField!
     @IBOutlet weak var runButton: NSToolbarItem!
-
+    
+    @IBOutlet weak var webView: WebView!
     @IBOutlet weak var defaultSnippetsMenu: NSMenu!
     @IBOutlet weak var customSnippetsMenu: NSMenu!
     
@@ -70,6 +72,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
     var defaultSnippets: Dictionary<String, String> = Dictionary()
     var customSnippets: Dictionary<String, String>  = Dictionary()
     var selectedProfile: OutputProfile = OutputProfile.EndUser
+    var cst: GrammarTree?
+    var ast: GrammarTree?
     
     @IBAction func createSnippetPressed(sender: AnyObject) {
         let name = "Test Case \(customSnippets.count)"
@@ -77,6 +81,28 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
         customSnippets[name] = textView.string!
         Defaults["snippets"] = customSnippets
         Defaults.synchronize()
+    }
+    
+    @IBAction func setOutputView(sender: NSSegmentedControl) {
+        switch sender.selectedSegment {
+        case 0:
+            webView.hidden = true;
+        case 1:
+            if(cst != nil && cst!.graphvizFile != nil){
+                webView.hidden = false;
+                let requestUrl = NSURL(fileURLWithPath: cst!.graphvizFile!)
+                let request = NSURLRequest(URL: requestUrl!)
+                webView!.mainFrame.loadRequest(request)
+            }
+        case 2:
+            if(ast != nil && ast!.graphvizFile != nil){
+                webView.hidden = false;
+                let requestUrl = NSURL(fileURLWithPath: ast!.graphvizFile!)
+                let request = NSURLRequest(URL: requestUrl!)
+                webView!.mainFrame.loadRequest(request)
+            }
+        default: ()
+        }
     }
     
     @IBAction func setOutputProfile(sender: NSMenuItem) {
@@ -126,7 +152,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
         log("Starting Parse Phase...")
         log("-----------------------------")
         
-        let cst = parser!.parse(tokenStream!)
+        cst = parser!.parse(tokenStream!)
         if cst == nil {
             showOverlay("Parser Failed")
             log("*Parse failed. Exiting.*")
@@ -139,7 +165,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
         log("-----------------------------")
         log("Starting Semantic Analysis...")
         log("-----------------------------")
-        let ast = analyzer!.analyze(cst!)
+        ast = analyzer!.analyze(cst!)
         if ast == nil {
             showOverlay("Semantic Analysis Failed")
             log("*Semantic Analysis failed. Exiting.*")
@@ -240,6 +266,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
         textView.textContainerInset = NSMakeSize(0,1)
         textView.font = NSFont(name: "Menlo", size: 12.0)
         textView.automaticQuoteSubstitutionEnabled = false
+        
+        webView.hidden = true
         
         console.translatesAutoresizingMaskIntoConstraints = true
         console.font = NSFont(name: "Menlo", size: 12.0)
