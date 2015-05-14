@@ -60,7 +60,7 @@ class Scope {
         }
     }
     
-    func getSymbol(scope: Scope, name: String) -> Symbol? {
+    private func getSymbol(scope: Scope, name: String) -> Symbol? {
         if let symbol = scope.symbols[name] {
             return symbol
         }
@@ -99,7 +99,7 @@ class SemanticAnalysis {
         appdelegate!.log(log)
     }
     
-    func analyze(cst: GrammarTree) -> GrammarTree? {
+    func analyze(cst: GrammarTree) -> (GrammarTree?, Scope?) {
 
         ast?.root = nil
         ast?.cur = nil
@@ -117,14 +117,14 @@ class SemanticAnalysis {
         appdelegate!.log("------------")
         
         if hasError {
-            return nil
+            return (nil, nil)
         } else {
             showScope(symbolTable!)
             showWarnings()
 //            appdelegate!.log(ast!.showTree())
             ast!.convertToGV("ast.gv");
             
-            return ast
+            return (ast, symbolTable)
         }
     }
     
@@ -166,7 +166,7 @@ class SemanticAnalysis {
         } else {
             log("Creating branch node in AST with value '\(branch.type!.rawValue)'.", type:.Match, profile:.Verbose)
         }
-        
+        branch.scope = currentScope
         ast?.addBranch(branch)
     }
     

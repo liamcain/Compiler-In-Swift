@@ -19,11 +19,12 @@
                 <outlet property="defaultSnippetsMenu" destination="0mr-4P-wiT" id="p79-yT-eYa"/>
                 <outlet property="inputScrollView" destination="8d0-wD-oCL" id="8ah-Pp-6dL"/>
                 <outlet property="outputScrollView" destination="Djx-Ye-d5Y" id="4l6-J7-cSP"/>
+                <outlet property="outputSegmentedControl" destination="fhn-QM-Vqy" id="gNz-BQ-TUg"/>
                 <outlet property="overlayPanel" destination="gkw-W8-yjH" id="xk9-X5-CdK"/>
                 <outlet property="overlayText" destination="hlL-b3-qet" id="0be-au-uRO"/>
                 <outlet property="runButton" destination="Rfy-Dk-a69" id="rQw-wg-jUK"/>
                 <outlet property="splitView" destination="kJ1-tU-9ai" id="cKm-c1-Hzq"/>
-                <outlet property="webView" destination="HhD-i6-nil" id="Rc4-pJ-TQk"/>
+                <outlet property="webView" destination="HhD-i6-nil" id="UOd-GU-7wx"/>
                 <outlet property="window" destination="QvC-M9-y7g" id="gIp-Ho-8D9"/>
             </connections>
         </customObject>
@@ -329,20 +330,17 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Output Profile" id="jYa-B8-Vnj">
                                     <items>
-                                        <menuItem title="End User" state="on" id="Ecj-b7-T0J">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                        <menuItem title="End User" state="on" keyEquivalent="1" id="Ecj-b7-T0J">
                                             <connections>
                                                 <action selector="setOutputProfile:" target="Voe-Tx-rLC" id="Wcp-LJ-Fln"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Verbose" id="nkA-r5-oiu">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                        <menuItem title="Verbose" keyEquivalent="2" id="nkA-r5-oiu">
                                             <connections>
                                                 <action selector="setOutputProfile:" target="Voe-Tx-rLC" id="mXO-VN-Amp"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Tell me everything" id="JGY-zu-CLp">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                        <menuItem title="Tell me everything" keyEquivalent="3" id="JGY-zu-CLp">
                                             <connections>
                                                 <action selector="setOutputProfile:" target="Voe-Tx-rLC" id="8AF-B6-QyZ"/>
                                             </connections>
@@ -448,9 +446,9 @@
                                 <rect key="frame" x="463" y="0.0" width="448" height="690"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <subviews>
-                                    <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Djx-Ye-d5Y" customClass="ScrollView" customModule="SwiftCompiler" customModuleProvider="target">
+                                    <scrollView fixedFrame="YES" borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Djx-Ye-d5Y" customClass="ScrollView" customModule="SwiftCompiler" customModuleProvider="target">
                                         <rect key="frame" x="1" y="0.0" width="447" height="690"/>
-                                        <clipView key="contentView" id="MTx-6P-aL6">
+                                        <clipView key="contentView" misplaced="YES" id="MTx-6P-aL6">
                                             <rect key="frame" x="1" y="1" width="238" height="133"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
@@ -476,21 +474,18 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                         </scroller>
                                     </scrollView>
-                                    <webView misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HhD-i6-nil">
-                                        <rect key="frame" x="1" y="0.0" width="447" height="690"/>
-                                        <webPreferences key="preferences" defaultFontSize="12" defaultFixedFontSize="12" plugInsEnabled="NO" javaEnabled="NO" javaScriptEnabled="NO" javaScriptCanOpenWindowsAutomatically="NO" allowsAnimatedImages="NO" allowsAnimatedImageLooping="NO"/>
+                                    <webView maintainsBackForwardList="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HhD-i6-nil">
+                                        <rect key="frame" x="0.0" y="0.0" width="448" height="690"/>
+                                        <webPreferences key="preferences" defaultFontSize="12" defaultFixedFontSize="12" plugInsEnabled="NO" javaEnabled="NO" javaScriptEnabled="NO" javaScriptCanOpenWindowsAutomatically="NO" loadsImagesAutomatically="NO" allowsAnimatedImages="NO" allowsAnimatedImageLooping="NO">
+                                            <nil key="identifier"/>
+                                        </webPreferences>
                                     </webView>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstItem="Djx-Ye-d5Y" firstAttribute="top" secondItem="XOM-Ee-6DJ" secondAttribute="top" id="2U3-cI-IB9"/>
-                                    <constraint firstItem="Djx-Ye-d5Y" firstAttribute="leading" secondItem="XOM-Ee-6DJ" secondAttribute="leading" constant="1" id="3Rq-pS-yuz"/>
-                                    <constraint firstAttribute="trailing" secondItem="Djx-Ye-d5Y" secondAttribute="trailing" id="Luf-Ib-0PR"/>
-                                    <constraint firstAttribute="trailing" secondItem="HhD-i6-nil" secondAttribute="trailing" id="MA6-QF-ncs"/>
-                                    <constraint firstAttribute="bottom" secondItem="HhD-i6-nil" secondAttribute="bottom" id="Nbd-Qt-3NS"/>
-                                    <constraint firstItem="HhD-i6-nil" firstAttribute="leading" secondItem="XOM-Ee-6DJ" secondAttribute="leading" id="mnG-tu-6NJ"/>
-                                    <constraint firstItem="HhD-i6-nil" firstAttribute="leading" secondItem="XOM-Ee-6DJ" secondAttribute="leading" id="qei-Kv-30E"/>
-                                    <constraint firstAttribute="bottom" secondItem="Djx-Ye-d5Y" secondAttribute="bottom" id="qoj-O9-vmt"/>
-                                    <constraint firstItem="HhD-i6-nil" firstAttribute="top" secondItem="XOM-Ee-6DJ" secondAttribute="top" id="sVj-Te-MFF"/>
+                                    <constraint firstAttribute="bottom" secondItem="HhD-i6-nil" secondAttribute="bottom" id="RS4-Xs-FzS"/>
+                                    <constraint firstItem="HhD-i6-nil" firstAttribute="top" secondItem="XOM-Ee-6DJ" secondAttribute="top" id="a7q-h8-O2w"/>
+                                    <constraint firstItem="HhD-i6-nil" firstAttribute="leading" secondItem="XOM-Ee-6DJ" secondAttribute="leading" id="cvo-sz-R6x"/>
+                                    <constraint firstAttribute="trailing" secondItem="HhD-i6-nil" secondAttribute="trailing" id="tGj-Ij-sWb"/>
                                 </constraints>
                             </customView>
                         </subviews>

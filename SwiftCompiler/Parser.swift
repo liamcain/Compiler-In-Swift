@@ -51,6 +51,7 @@ class Grammar {
     
     var token: Token?      // For leaf nodes
     var type :GrammarType? // For branch nodes
+    var scope: Scope?
     
     var description: String {
         if token != nil {
@@ -114,7 +115,7 @@ class Parser {
         
         if !hasError {
 //            log(cst!.showTree(), type: LogType.Message, position:(0,0))
-            cst!.convertToGV("cst.gv")
+            cst!.convertToGV("cst")
             return cst
         } else {
             return nil

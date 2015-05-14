@@ -55,7 +55,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
     @IBOutlet weak var overlayText: NSTextField!
     @IBOutlet weak var runButton: NSToolbarItem!
     
+    @IBOutlet weak var outputSegmentedControl: NSSegmentedControl!
     @IBOutlet weak var webView: WebView!
+    
     @IBOutlet weak var defaultSnippetsMenu: NSMenu!
     @IBOutlet weak var customSnippetsMenu: NSMenu!
     
@@ -63,17 +65,20 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
     
     var textView: NSTextView { return inputScrollView!.contentView.documentView as! NSTextView }
     var console:  OutputTextView { return outputScrollView!.contentView.documentView as! OutputTextView }
-    
     var rulerView: RulerView?
+    
     var lexer: Lexer?
     var parser: Parser?
     var analyzer: SemanticAnalysis?
+    var codeGen: CodeGen?
+    
     var tokenStream: [Token]?
     var defaultSnippets: Dictionary<String, String> = Dictionary()
     var customSnippets: Dictionary<String, String>  = Dictionary()
     var selectedProfile: OutputProfile = OutputProfile.EndUser
     var cst: GrammarTree?
     var ast: GrammarTree?
+    var outputHex: String?
     
     @IBAction func createSnippetPressed(sender: AnyObject) {
         let name = "Test Case \(customSnippets.count)"
@@ -83,26 +88,28 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
         Defaults.synchronize()
     }
     
-    @IBAction func setOutputView(sender: NSSegmentedControl) {
-        switch sender.selectedSegment {
+    func loadOutputView(){
+        switch outputSegmentedControl.selectedSegment {
         case 0:
             webView.hidden = true;
         case 1:
             if(cst != nil && cst!.graphvizFile != nil){
                 webView.hidden = false;
-                let requestUrl = NSURL(fileURLWithPath: cst!.graphvizFile!)
-                let request = NSURLRequest(URL: requestUrl!)
+                let request = NSURLRequest(URL: cst!.graphvizFile!)
                 webView!.mainFrame.loadRequest(request)
             }
         case 2:
             if(ast != nil && ast!.graphvizFile != nil){
                 webView.hidden = false;
-                let requestUrl = NSURL(fileURLWithPath: ast!.graphvizFile!)
-                let request = NSURLRequest(URL: requestUrl!)
+                let request = NSURLRequest(URL: ast!.graphvizFile!)
                 webView!.mainFrame.loadRequest(request)
             }
         default: ()
         }
+    }
+    
+    @IBAction func setOutputView(sender: NSSegmentedControl) {
+        loadOutputView()
     }
     
     @IBAction func setOutputProfile(sender: NSMenuItem) {
@@ -162,16 +169,33 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
         
         
         // -- SEMANTIC ANALYSIS ------------------------
+        var symbolTable: Scope
         log("-----------------------------")
         log("Starting Semantic Analysis...")
         log("-----------------------------")
-        ast = analyzer!.analyze(cst!)
+        let analysis = analyzer!.analyze(cst!)
+        ast = analysis.0
+        symbolTable = analysis.1!
         if ast == nil {
             showOverlay("Semantic Analysis Failed")
             log("*Semantic Analysis failed. Exiting.*")
             return
         }
+
+        
+        // -- CODE GENERATION ------------------------
+        log("-----------------------------")
+        log("Starting Code Generation...")
+        log("-----------------------------")
+        outputHex = codeGen!.generateCode(ast!, symbolTable: symbolTable)
+        if outputHex == nil {
+            showOverlay("Code Generation Failed")
+            log("*Code Generation failed. Exiting.*")
+            return
+        }
+        
         showOverlay("Compiler Succeeded")
+        loadOutputView()
     }
     
 
@@ -261,6 +285,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
         lexer    = Lexer()
         parser   = Parser()
         analyzer = SemanticAnalysis()
+        codeGen = CodeGen()
         
         textView.translatesAutoresizingMaskIntoConstraints = true
         textView.textContainerInset = NSMakeSize(0,1)

@@ -13,6 +13,20 @@ public enum NodeType {
     case Branch
 }
 
+extension String {
+    func createFolderAt(location: NSSearchPathDirectory) -> String? {
+        if let directoryUrl = NSFileManager.defaultManager().URLsForDirectory(location, inDomains: .UserDomainMask).first as? NSURL {
+            let folderUrl = directoryUrl.URLByAppendingPathComponent(self)
+            var err: NSErrorPointer = nil
+            if NSFileManager.defaultManager().createDirectoryAtPath(folderUrl.path!, withIntermediateDirectories: true, attributes: nil, error: err) {
+                return folderUrl.path!
+            }
+            return nil
+        }
+        return nil
+    }
+}
+
 class Node<T> {
     weak var parent: Node<T>?
     var children: [Node]
@@ -58,7 +72,7 @@ class GrammarTree {
     weak var cur:  Node<Grammar>?
     private var traversalResult: String
     private var latestId: Int
-    var graphvizFile: String?
+    var graphvizFile: NSURL?
     
     init(){
         root = nil
@@ -138,6 +152,8 @@ class GrammarTree {
         return task.terminationStatus
     }
     
+    
+    
     func convertToGV(filename: String) {
         if(root == nil){
             return
@@ -146,11 +162,19 @@ class GrammarTree {
         fileContents += expand(root!)
         fileContents += "\n}"
         
-        let fullPath = NSTemporaryDirectory() + filename
-        graphvizFile = fullPath + ".pdf"
+        let fileManager = NSFileManager.defaultManager()
         
-        if fileContents.writeToFile(fullPath, atomically: false, encoding: NSUTF8StringEncoding, error: nil) {
-            shell("-Tpdf", fullPath, "-o", graphvizFile!)
+        
+//        let appDir = "~/Library/Application Support/"
+        let appDir = "com.liamcain.compiler-in-swift".createFolderAt(.ApplicationSupportDirectory)
+        let fullPath = appDir!.stringByAppendingPathComponent(filename)
+        
+        let gvLocation = fullPath.stringByAppendingPathExtension("gv")!
+        let pdfLocation = fullPath.stringByAppendingPathExtension("pdf")!
+        graphvizFile = NSURL(fileURLWithPath:pdfLocation)
+        
+        if fileContents.writeToFile(gvLocation, atomically: false, encoding: NSUTF8StringEncoding, error: nil) {
+            shell("-Tpdf", gvLocation, "-o", pdfLocation)
         }
     }
     
