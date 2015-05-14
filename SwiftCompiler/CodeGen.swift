@@ -153,8 +153,6 @@ class CodeGen {
     init(){
         appdelegate = (NSApplication.sharedApplication().delegate as! AppDelegate)
         hasError = false
-        
-//        executionEnvironment = [Address?](count: 256, repeatedValue: nil)
         executionEnvironment = [String](count: 256, repeatedValue: "00")
         index = 0
         heapIndex = 254
@@ -184,11 +182,12 @@ class CodeGen {
     
     func next(temp: Temp){
         next("T\(temp.register)")
-        if(temp.finalAddress != nil){
+        next("XX")
+        /*if(temp.finalAddress != nil){
             next(temp.finalAddress!)
         } else {
             next(Address(temp:temp))
-        }
+        }*/
     }
     
     func generateCode(ast: GrammarTree) -> String {
@@ -248,16 +247,12 @@ class CodeGen {
             
             if executionEnvironment[i] == "T" {
                 let temp = tempTable!.get(num)!
-//                replace(i, str: temp.finalAddress! + hex(temp.offset))
                 replace(i, str: temp.finalAddress! + "00")
                 i += 2
             } else if executionEnvironment[i] == "J" {
                 let distance = jumpTable?.getJump(complete)!.distance
                 replace(i, str: hex(distance!))
             }
-            
-            
-            
         }
     }
     
@@ -268,7 +263,7 @@ class CodeGen {
         log("Generating code for branch: \(node!.value.description).", type:.Useless,  profile:.Verbose)
     
         switch node!.value.type! {
-        case .AssignmentStatement:
+        case .AssignmentStatement: return
             assignmentStatement(node!)
         case .VarDecl:
             varDecl(node!)
@@ -288,7 +283,6 @@ class CodeGen {
             next(jumpName)
             generateCode(node!.children[1])
             jumpTable!.getJump(jumpName)!.distance = (index - jumpStart) / 2 - 1
-            
         case .PrintStatement:
             printSysCall(node!.children[0])
         case .Block:
@@ -388,12 +382,8 @@ class CodeGen {
     func storeAccumulator(toRegister: Temp){
         log("Storing accumulator at Temp \(toRegister.symbol)'s register.", type:.Message,  profile:.Verbose)
         next("8D")
-        if(toRegister.finalAddress != nil){
-            next(toRegister.finalAddress!)
-        } else {
-            next(toRegister)
-        }
-        
+
+        next(toRegister)
     }
     
     func boolExpr(node: Node<Grammar>){
@@ -409,6 +399,19 @@ class CodeGen {
         return tempTable?.get(symbol)
     }
     
+    func stripQuotes(str: String) -> String {
+        // Huh Okay swift. No problem!
+        return str.substringFromIndex(str.startIndex.successor()).substringToIndex(str.endIndex.predecessor().predecessor())
+    }
+    
+    func insertIntoHeap(index: Int, str: String){
+        var i = index
+        for s in str {
+            executionEnvironment[i] = String(s)
+            i++
+        }
+    }
+    
     func addressForNode(node: Node<Grammar>) -> Address {
         let type = node.value.token!.type
         
@@ -416,37 +419,47 @@ class CodeGen {
             let value = node.value.token!.str.toInt()
             return Address(str:hex(value!))
         } else if type == TokenType.t_quote {
-            var string = node.value.token!.str
-            let len = count(string)
-            string = string.substringToIndex(string.startIndex)
-            string = string.substringToIndex(string.endIndex.predecessor())
-            return Address(str: string)
+            var string = stripQuotes(node.value.token!.str)
+            heapIndex -= count(string)*2 + 2
+            var tempIndex = heapIndex + 2
+            for s in string.utf8 {
+                let h: Int = String(s).toInt()!
+                insertIntoHeap(tempIndex, str: hex(h))
+                tempIndex += 2
+            }
+            return Address(str: hex((heapIndex+2)))
         } else {
             return Address(temp: registerForSymbol(node)!)
         }
     }
     
+    func recursiveAddTo(address: Address, node: Node<Grammar>){
+        
+    }
+    
     func assignmentStatement(node: Node<Grammar>){
         log("Found assignment statement.", type:.Message,  profile:.Everything)
+        let variable = node.children[0].value
         var address: Address?
-        if count(node.children) == 2 {
-            let variable = node.children[0].value
-            let address = addressForNode(node.children[1])
-            
-            if variable.token?.type == TokenType.t_quote {
-                
-            }
-            
-            if address.str != nil {
-                loadAccumulator(address.str!)
-            } else {
-                loadAccumuluator(address.tmp!)
-            }
-            if let t = registerForSymbol(node.children[0]) {
-                storeAccumulator(t)
-            } else {
-                //Error
-            }
+        var recurseAdd: Bool = false
+        
+        if node.children[1].value.type! == GrammarType.intop {
+            address = addressForNode(node.children[1].children[0])
+            recurseAdd = true
+        } else {
+            address = addressForNode(node.children[1])
+        }
+        
+        
+        if address!.str != nil {
+            loadAccumulator(address!.str!)
+        } else {
+            loadAccumuluator(address!.tmp!)
+        }
+        if let t = registerForSymbol(node.children[0]) {
+            storeAccumulator(t)
+        } else {
+            //Error
         }
     }
     
@@ -462,4 +475,3 @@ class CodeGen {
     }
     
 }
-
