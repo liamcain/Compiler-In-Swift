@@ -53,9 +53,19 @@ class TempTable {
         index = 0
     }
     
-    func getTemp(symbol: Symbol) -> Temp? {
+    func get(symbol: Symbol) -> Temp? {
         for t in tempVars {
             if t.symbol === symbol {
+                return t
+            }
+        }
+        return nil
+    }
+    
+    func get(reg: String) -> Temp? {
+        let register = reg.toInt()
+        for t in tempVars {
+            if t.register == register {
                 return t
             }
         }
@@ -130,12 +140,13 @@ class CodeGen {
     
     var ast: GrammarTree?
     var symbolTable: Scope?
-    var executionEnvironment: [Address?]
+    var executionEnvironment: [String]
     
     var jumpTable: JumpTable?
     var tempTable: TempTable?
     
     var index: Int
+    var heapIndex: Int
     var currNode: Node<Grammar>?
     
     
@@ -143,8 +154,10 @@ class CodeGen {
         appdelegate = (NSApplication.sharedApplication().delegate as! AppDelegate)
         hasError = false
         
-        executionEnvironment = [Address?](count: 256, repeatedValue: nil)
+//        executionEnvironment = [Address?](count: 256, repeatedValue: nil)
+        executionEnvironment = [String](count: 256, repeatedValue: "00")
         index = 0
+        heapIndex = 254
     }
     
     func log(output: String, type: LogType = .Message, profile: OutputProfile = .EndUser){
@@ -159,13 +172,14 @@ class CodeGen {
     }
     
     func next(str:String){
-        executionEnvironment[index] = Address(str: str)
-        index++
+        for c in str {
+            executionEnvironment[index] = String(c)
+            index++
+        }
     }
     
     func next(address:Address){
-        executionEnvironment[index] = address
-        index++
+        next("XX")
     }
     
     func next(temp: Temp){
@@ -180,38 +194,69 @@ class CodeGen {
     func generateCode(ast: GrammarTree) -> String {
         self.ast = ast
         
-        executionEnvironment = [Address?](count: 256, repeatedValue: nil)
+        executionEnvironment = [String](count: 256, repeatedValue: "0")
         jumpTable = JumpTable()
         tempTable = TempTable()
         
         index = 0
+        heapIndex = 254
         
         generateCode(ast.root)
+        next("00")
         
         backPatch()
         
         var i = 0
+        print("\(hex(i/2)) |")
         for s in executionEnvironment {
-            if s != nil {
-                print("\(s!.description) ")
-            } else {
-                print("00 ")
-            }
+            print(s)
             i++
-            if i % 8 == 0 {
+            if i % 2 == 0 {
+                print(" ")
+            }
+            if i % 16 == 0 {
                 println()
+                print("\(hex(i/2)) |")
             }
         }
         
-        return ""//nil
+        var machineCode: String = ""
+        for s in executionEnvironment {
+            machineCode += s
+        }
+        return machineCode
+    }
+    
+    func replace(pos: Int, str: String){
+        var p = pos
+        for s in str {
+            executionEnvironment[p] = String(s)
+            p++
+        }
     }
     
     func backPatch(){
         for t in tempTable!.tempVars {
-            t.finalAddress = hex(index)
-            index += t.offset
+            t.finalAddress = hex(index/2)
+            index += t.offset*2
         }
-        for j in jumpTable!.jumps {
+        
+        for var i = 0; i < count(executionEnvironment); i += 2 {
+            let char = executionEnvironment[i]
+            let num = executionEnvironment[i+1]
+            let complete = char + num
+            
+            if executionEnvironment[i] == "T" {
+                let temp = tempTable!.get(num)!
+//                replace(i, str: temp.finalAddress! + hex(temp.offset))
+                replace(i, str: temp.finalAddress! + "00")
+                i += 2
+            } else if executionEnvironment[i] == "J" {
+                let distance = jumpTable?.getJump(complete)!.distance
+                replace(i, str: hex(distance!))
+            }
+            
+            
             
         }
     }
@@ -234,7 +279,16 @@ class CodeGen {
             branchNotEquals()
             next(jumpName)
             generateCode(node!.children[1])
-            jumpTable!.getJump(jumpName)!.distance = index - jumpStart
+            jumpTable!.getJump(jumpName)!.distance = (index - jumpStart) / 2 - 1
+        case .WhileStatement:
+            boolExpr(node!.children[0])
+            let jumpStart = index
+            let jumpName = jumpTable!.addJump()
+            branchNotEquals()
+            next(jumpName)
+            generateCode(node!.children[1])
+            jumpTable!.getJump(jumpName)!.distance = (index - jumpStart) / 2 - 1
+            
         case .PrintStatement:
             printSysCall(node!.children[0])
         case .Block:
@@ -264,12 +318,12 @@ class CodeGen {
     }
     
     func loadY(fromMemory: Temp) {
-        next("AE")
+        next("AC")
         next(fromMemory)
     }
     
     func loadY(constant: Int) {
-        next("A2")
+        next("A0")
         next(hex(constant))
     }
     
@@ -352,16 +406,21 @@ class CodeGen {
     func registerForSymbol(node: Node<Grammar>) -> Temp? {
         let str = node.value.token!.str
         let symbol: Symbol = node.parent!.value.scope!.getSymbol(str, recurse: true)!
-        return tempTable?.getTemp(symbol)
+        return tempTable?.get(symbol)
     }
     
     func addressForNode(node: Node<Grammar>) -> Address {
         let type = node.value.token!.type
         
-        
         if type == TokenType.t_digit {
             let value = node.value.token!.str.toInt()
             return Address(str:hex(value!))
+        } else if type == TokenType.t_quote {
+            var string = node.value.token!.str
+            let len = count(string)
+            string = string.substringToIndex(string.startIndex)
+            string = string.substringToIndex(string.endIndex.predecessor())
+            return Address(str: string)
         } else {
             return Address(temp: registerForSymbol(node)!)
         }
@@ -373,6 +432,11 @@ class CodeGen {
         if count(node.children) == 2 {
             let variable = node.children[0].value
             let address = addressForNode(node.children[1])
+            
+            if variable.token?.type == TokenType.t_quote {
+                
+            }
+            
             if address.str != nil {
                 loadAccumulator(address.str!)
             } else {
@@ -398,3 +462,4 @@ class CodeGen {
     }
     
 }
+
