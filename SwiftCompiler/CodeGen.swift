@@ -326,8 +326,9 @@ class CodeGen {
         next(constant)
     }
     
-    func addWithCarry(){
+    func addWithCarry(fromMemory: Temp){
         next("6D")
+        next(fromMemory)
     }
     
     func printSysCall(node: Node<Grammar>){
@@ -433,8 +434,18 @@ class CodeGen {
         }
     }
     
-    func recursiveAddTo(address: Address, node: Node<Grammar>){
-        
+    func recursiveAddTo(temp: Temp, node: Node<Grammar>){
+            let constant = node.children[0].value.token!.str
+            loadAccumulator(constant)
+            addWithCarry(temp)
+            if node.children[1].value.type! == GrammarType.intop {
+                recursiveAddTo(temp, node: node.children[1])
+            } else {
+                let constant = node.children[1].value.token!.str
+                loadAccumulator(constant)
+                addWithCarry(temp)
+            
+        }
     }
     
     func assignmentStatement(node: Node<Grammar>){
@@ -450,17 +461,20 @@ class CodeGen {
             address = addressForNode(node.children[1])
         }
         
-        
         if address!.str != nil {
             loadAccumulator(address!.str!)
         } else {
             loadAccumuluator(address!.tmp!)
         }
         if let t = registerForSymbol(node.children[0]) {
+            if(recurseAdd) {
+                recursiveAddTo(t, node: node.children[1])
+            }
             storeAccumulator(t)
         } else {
             //Error
         }
+        
     }
     
     func varDecl(node: Node<Grammar>){
