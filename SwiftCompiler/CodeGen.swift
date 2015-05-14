@@ -435,14 +435,15 @@ class CodeGen {
     }
     
     func recursiveAddTo(temp: Temp, node: Node<Grammar>){
-            let constant = node.children[0].value.token!.str
-            loadAccumulator(constant)
+            let constant = node.children[0].value.token!.str.toInt()
+            storeAccumulator(temp)
+            loadAccumulator(hex(constant!))
             addWithCarry(temp)
             if node.children[1].value.type! == GrammarType.intop {
                 recursiveAddTo(temp, node: node.children[1])
             } else {
-                let constant = node.children[1].value.token!.str
-                loadAccumulator(constant)
+                let constant = node.children[1].value.token!.str.toInt()
+                loadAccumulator(hex(constant!))
                 addWithCarry(temp)
             
         }
