@@ -175,7 +175,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
         log("-----------------------------")
         let analysis = analyzer!.analyze(cst!)
         ast = analysis.0
-        symbolTable = analysis.1!
         if ast == nil {
             showOverlay("Semantic Analysis Failed")
             log("*Semantic Analysis failed. Exiting.*")
@@ -187,7 +186,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
         log("-----------------------------")
         log("Starting Code Generation...")
         log("-----------------------------")
-        outputHex = codeGen!.generateCode(ast!, symbolTable: symbolTable)
+        outputHex = codeGen!.generateCode(ast!)
         if outputHex == nil {
             showOverlay("Code Generation Failed")
             log("*Code Generation failed. Exiting.*")
