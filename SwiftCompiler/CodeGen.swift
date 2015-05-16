@@ -171,8 +171,6 @@ class Temp {
         self.register = register
         if symbol.type == .String {
             offset = count(symbol.token.str)
-        } else if symbol.type == .Int {
-            offset = 2
         } else {
             offset = 1
         }
@@ -444,6 +442,9 @@ class CodeGen {
         let addressB = registerForSymbol(node.children[1])
         loadX(addressA!)
         compareToX(addressB!)
+        if node.value.token!.str == "!=" {
+            
+        }
     }
     
     func registerForSymbol(node: Node<Grammar>) -> Temp? {
@@ -457,27 +458,21 @@ class CodeGen {
         return str.substringFromIndex(str.startIndex.successor()).substringToIndex(str.endIndex.predecessor().predecessor())
     }
     
-//    func insertIntoHeap(index: Int, str: String){
-//        var i = index
-//        for s in str {
-//            executionEnvironment[i] = String(s)
-//            i++
-//        }
-//    }
-    
     func addressForNode(node: Node<Grammar>) -> Address {
         let type = node.value.token!.type
         
         if type == TokenType.t_digit {
             let value = node.value.token!.str.toInt()
             return Address(const: value!)
+        } else if type == TokenType.t_boolval {
+            let value = node.value.token!.str == "true" ?1 :0
+            return Address(const: value)
         } else if type == TokenType.t_quote {
             var string = stripQuotes(node.value.token!.str)
             heapIndex -= count(string) + 1
             var tempIndex = heapIndex + 1
             for s in string.utf8 {
                 let h: Int = String(s).toInt()!
-//                insertIntoHeap(tempIndex, str: hex(h))
                 executionEnvironment[tempIndex] = hex(h)
                 tempIndex++
             }
