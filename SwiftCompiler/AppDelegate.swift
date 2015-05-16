@@ -192,7 +192,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
             log("*Code Generation failed. Exiting.*")
             return
         }
-        
+        NSPasteboard.generalPasteboard().clearContents()
+        NSPasteboard.generalPasteboard().setString(outputHex!, forType: NSStringPboardType)
         showOverlay("Compiler Succeeded")
         loadOutputView()
     }
