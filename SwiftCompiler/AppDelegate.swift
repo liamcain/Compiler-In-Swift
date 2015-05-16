@@ -56,7 +56,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
     @IBOutlet weak var runButton: NSToolbarItem!
     
     @IBOutlet weak var outputSegmentedControl: NSSegmentedControl!
-    @IBOutlet weak var webView: WebView!
     
     @IBOutlet weak var defaultSnippetsMenu: NSMenu!
     @IBOutlet weak var customSnippetsMenu: NSMenu!
@@ -89,23 +88,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
     }
     
     func loadOutputView(){
-        switch outputSegmentedControl.selectedSegment {
-        case 0:
-            webView.hidden = true;
-        case 1:
-            if(cst != nil && cst!.graphvizFile != nil){
-                webView.hidden = false;
-                let request = NSURLRequest(URL: cst!.graphvizFile!)
-                webView!.mainFrame.loadRequest(request)
-            }
-        case 2:
-            if(ast != nil && ast!.graphvizFile != nil){
-                webView.hidden = false;
-                let request = NSURLRequest(URL: ast!.graphvizFile!)
-                webView!.mainFrame.loadRequest(request)
-            }
-        default: ()
-        }
+
     }
     
     @IBAction func setOutputView(sender: NSSegmentedControl) {
@@ -291,9 +274,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
         textView.textContainerInset = NSMakeSize(0,1)
         textView.font = NSFont(name: "Menlo", size: 12.0)
         textView.automaticQuoteSubstitutionEnabled = false
-        
-        webView.hidden = true
-        
+                
         console.translatesAutoresizingMaskIntoConstraints = true
         console.font = NSFont(name: "Menlo", size: 12.0)
         

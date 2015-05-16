@@ -9,6 +9,28 @@
 import Foundation
 import Cocoa
 
+extension String {
+
+    // Faster version
+    // benchmarked with a 1000 characters and 100 repeats the fast version is approx 500 000 times faster :-)
+    func repeat(n:Int) -> String {
+        var result = self
+        for _ in 1 ..< n {
+            result.extend(self)   // Note that String.extend is up to 10 times faster than "result += self"
+        }
+        return result
+    }
+}
+
+extension Int {
+    func hex() -> String {
+        let s = String(self, radix: 16, uppercase: true)
+        if count(s) == 1 {
+            return "0\(s)"
+        }
+        return s
+    }
+}
 
 class Jump {
     var name: String
@@ -63,9 +85,8 @@ class TempTable {
     }
     
     func get(reg: String) -> Temp? {
-        let register = reg.toInt()
         for t in tempVars {
-            if t.register == register {
+            if t.description == reg {
                 return t
             }
         }
@@ -82,19 +103,39 @@ class TempTable {
 }
 
 class Address {
+    enum AddressType {
+        case Constant
+        case Reference
+        case Command
+        case Temp
+        case Jump
+    }
+    var type: AddressType
     var str: String?
     var tmp: Temp?
+    var addressRef: String?
     var jump: Jump?
     
     init(str: String){
         self.str = str
+        type = AddressType.Command
+    }
+    init(ref: String){
+        self.str = ref
+        type = AddressType.Reference
+    }
+    init(const: Int){
+        self.str = const.hex()
+        type = AddressType.Constant
     }
     init(temp: Temp){
         self.tmp = temp
+        type = AddressType.Temp
     }
     
     init(jump: Jump){
         self.jump = jump
+        type = AddressType.Jump
     }
     var description: String {
         if str != nil {
@@ -122,11 +163,16 @@ class Temp {
     var register: Int
     var offset: Int
     var finalAddress: String?
+    var description: String {
+        return "T\(register)"
+    }
     init(symbol: Symbol, register: Int){
         self.symbol = symbol
         self.register = register
         if symbol.type == .String {
             offset = count(symbol.token.str)
+        } else if symbol.type == .Int {
+            offset = 2
         } else {
             offset = 1
         }
@@ -155,7 +201,7 @@ class CodeGen {
         hasError = false
         executionEnvironment = [String](count: 256, repeatedValue: "00")
         index = 0
-        heapIndex = 254
+        heapIndex = 255
     }
     
     func log(output: String, type: LogType = .Message, profile: OutputProfile = .EndUser){
@@ -170,10 +216,10 @@ class CodeGen {
     }
     
     func next(str:String){
-        for c in str {
-            executionEnvironment[index] = String(c)
+//        for c in str {
+            executionEnvironment[index] = str//String(c)
             index++
-        }
+//        }
     }
     
     func next(address:Address){
@@ -181,24 +227,19 @@ class CodeGen {
     }
     
     func next(temp: Temp){
-        next("T\(temp.register)")
+        next(temp.description)
         next("XX")
-        /*if(temp.finalAddress != nil){
-            next(temp.finalAddress!)
-        } else {
-            next(Address(temp:temp))
-        }*/
     }
     
     func generateCode(ast: GrammarTree) -> String {
         self.ast = ast
         
-        executionEnvironment = [String](count: 256, repeatedValue: "0")
+        executionEnvironment = [String](count: 256, repeatedValue: "00")
         jumpTable = JumpTable()
         tempTable = TempTable()
         
         index = 0
-        heapIndex = 254
+        heapIndex = 255
         
         generateCode(ast.root)
         next("00")
@@ -206,16 +247,13 @@ class CodeGen {
         backPatch()
         
         var i = 0
-        print("\(hex(i/2)) |")
+        print("\(hex(i/2))| ")
         for s in executionEnvironment {
-            print(s)
+            print(s + " ")
             i++
-            if i % 2 == 0 {
-                print(" ")
-            }
-            if i % 16 == 0 {
+            if i % 8 == 0 {
                 println()
-                print("\(hex(i/2)) |")
+                print("\(hex(i))| ")
             }
         }
         
@@ -236,22 +274,21 @@ class CodeGen {
     
     func backPatch(){
         for t in tempTable!.tempVars {
-            t.finalAddress = hex(index/2)
-            index += t.offset*2
+            t.finalAddress = hex(index)
+            index += t.offset
         }
         
-        for var i = 0; i < count(executionEnvironment); i += 2 {
-            let char = executionEnvironment[i]
-            let num = executionEnvironment[i+1]
-            let complete = char + num
-            
-            if executionEnvironment[i] == "T" {
-                let temp = tempTable!.get(num)!
-                replace(i, str: temp.finalAddress! + "00")
-                i += 2
-            } else if executionEnvironment[i] == "J" {
-                let distance = jumpTable?.getJump(complete)!.distance
-                replace(i, str: hex(distance!))
+        for var i = 0; i < count(executionEnvironment); i++ {
+            let byte = executionEnvironment[i]
+
+            if byte.hasPrefix("T") {
+                let temp = tempTable!.get(byte)!
+                executionEnvironment[i] = temp.finalAddress!
+                executionEnvironment[i+1] = "00"
+            } else if byte.hasPrefix("J") {
+                let distance = jumpTable?.getJump(byte)!.distance
+                executionEnvironment[i] = hex(distance!)
+                executionEnvironment[i+1] = "00"
             }
         }
     }
@@ -274,7 +311,7 @@ class CodeGen {
             branchNotEquals()
             next(jumpName)
             generateCode(node!.children[1])
-            jumpTable!.getJump(jumpName)!.distance = (index - jumpStart) / 2 - 1
+            jumpTable!.getJump(jumpName)!.distance = index - jumpStart - 1
         case .WhileStatement:
             boolExpr(node!.children[0])
             let jumpStart = index
@@ -282,7 +319,7 @@ class CodeGen {
             branchNotEquals()
             next(jumpName)
             generateCode(node!.children[1])
-            jumpTable!.getJump(jumpName)!.distance = (index - jumpStart) / 2 - 1
+            jumpTable!.getJump(jumpName)!.distance = index - jumpStart
         case .PrintStatement:
             printSysCall(node!.children[0])
         case .Block:
@@ -302,60 +339,75 @@ class CodeGen {
     }
     
     func loadX(fromMemory: Temp) {
+        log("Loading X Register from memory address of temp \(fromMemory.register)", type:.Message,  profile:.Verbose)
         next("AE")
         next(fromMemory)
     }
     
     func loadX(constant: Int) {
+        log("Loading X Register with constant \(constant)", type:.Message,  profile:.Verbose)
         next("A2")
         next(hex(constant))
     }
     
     func loadY(fromMemory: Temp) {
+        log("Loading Y Register from memory address of temp \(fromMemory.register)", type:.Message,  profile:.Verbose)
         next("AC")
         next(fromMemory)
     }
     
-    func loadY(constant: Int) {
-        next("A0")
-        next(hex(constant))
-    }
-    
     func loadY(constant: String) {
-        next("A2")
+        log("Loading Y with string \(constant)", type:.Message,  profile:.Verbose)
+        next("A0")
         next(constant)
     }
     
     func addWithCarry(fromMemory: Temp){
+        log("Adding with carry bit.", type:.Message,  profile:.Verbose)
         next("6D")
         next(fromMemory)
     }
     
     func printSysCall(node: Node<Grammar>){
+        log("Printing branch.)", type:.Message,  profile:.Verbose)
         let address = addressForNode(node)
-        if address.str != nil {
+        
+        switch address.type {
+        case .Reference:
             loadY(address.str!)
-        } else {
+            loadX(2)
+        case .Constant:
+            loadY(address.str!)
+            loadX(1)
+        default:
             loadY(address.tmp!)
+            if address.tmp?.symbol.type == VarType.String {
+                loadX(2)
+            } else {
+                loadX(1)
+            }
         }
-        loadX(1)
         next("FF")
     }
     
     func breakSysCall(){
+        log("Break.", type:.Message,  profile:.Verbose)
         next("00")
     }
     
     func compareToX(fromMemory: Temp){
+        log("Comparing X register to memory address for register\(fromMemory).", type:.Message,  profile:.Verbose)
         next("EC")
         next(fromMemory)
     }
     
     func branchNotEquals(){
+        log("Branch not equals.", type:.Message,  profile:.Verbose)
         next("D0")
     }
     
     func increment(){
+        log("Incrementing byte.", type:.Message,  profile:.Verbose)
         next("D0")
     }
     
@@ -381,7 +433,7 @@ class CodeGen {
     }
     
     func storeAccumulator(toRegister: Temp){
-        log("Storing accumulator at Temp \(toRegister.symbol)'s register.", type:.Message,  profile:.Verbose)
+        log("Storing accumulator to Register\(toRegister.register).", type:.Message,  profile:.Verbose)
         next("8D")
 
         next(toRegister)
@@ -389,7 +441,7 @@ class CodeGen {
     
     func boolExpr(node: Node<Grammar>){
         let addressA = registerForSymbol(node.children[0])
-        let addressB = registerForSymbol(node.children[0])
+        let addressB = registerForSymbol(node.children[1])
         loadX(addressA!)
         compareToX(addressB!)
     }
@@ -405,30 +457,31 @@ class CodeGen {
         return str.substringFromIndex(str.startIndex.successor()).substringToIndex(str.endIndex.predecessor().predecessor())
     }
     
-    func insertIntoHeap(index: Int, str: String){
-        var i = index
-        for s in str {
-            executionEnvironment[i] = String(s)
-            i++
-        }
-    }
+//    func insertIntoHeap(index: Int, str: String){
+//        var i = index
+//        for s in str {
+//            executionEnvironment[i] = String(s)
+//            i++
+//        }
+//    }
     
     func addressForNode(node: Node<Grammar>) -> Address {
         let type = node.value.token!.type
         
         if type == TokenType.t_digit {
             let value = node.value.token!.str.toInt()
-            return Address(str:hex(value!))
+            return Address(const: value!)
         } else if type == TokenType.t_quote {
             var string = stripQuotes(node.value.token!.str)
-            heapIndex -= count(string)*2 + 2
-            var tempIndex = heapIndex + 2
+            heapIndex -= count(string) + 1
+            var tempIndex = heapIndex + 1
             for s in string.utf8 {
                 let h: Int = String(s).toInt()!
-                insertIntoHeap(tempIndex, str: hex(h))
-                tempIndex += 2
+//                insertIntoHeap(tempIndex, str: hex(h))
+                executionEnvironment[tempIndex] = hex(h)
+                tempIndex++
             }
-            return Address(str: hex((heapIndex+2)))
+            return Address(ref: hex((heapIndex+1)))
         } else {
             return Address(temp: registerForSymbol(node)!)
         }
