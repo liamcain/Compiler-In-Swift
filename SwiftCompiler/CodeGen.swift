@@ -69,6 +69,7 @@ class JumpTable {
 class TempTable {
     var tempVars: [Temp]
     var index: Int
+    var tempByte: Temp?
     
     init(){
         tempVars = Array<Temp>()
@@ -93,11 +94,20 @@ class TempTable {
         return nil
     }
     
+    func getTempByte() -> Temp {
+        if tempByte == nil {
+            let t = Temp(register: index)
+            tempVars.append(t)
+            index++
+            return t
+        }
+        return tempByte!
+    }
+    
     func addTemp(symbol: Symbol) -> Temp {
         let t = Temp(symbol:symbol, register:index)
         tempVars.append(t)
         index++
-//        return "T\(t.register)"
         return t
     }
 }
@@ -159,7 +169,7 @@ class Address {
 }
 
 class Temp {
-    var symbol: Symbol
+    var symbol: Symbol?
     var register: Int
     var offset: Int
     var finalAddress: String?
@@ -174,6 +184,10 @@ class Temp {
         } else {
             offset = 1
         }
+    }
+    init(register: Int){
+        self.register = register
+        offset = 1
     }
 }
 
@@ -286,7 +300,6 @@ class CodeGen {
             } else if byte.hasPrefix("J") {
                 let distance = jumpTable?.getJump(byte)!.distance
                 executionEnvironment[i] = hex(distance!)
-                executionEnvironment[i+1] = "00"
             }
         }
     }
@@ -379,13 +392,22 @@ class CodeGen {
             loadX(1)
         default:
             loadY(address.tmp!)
-            if address.tmp?.symbol.type == VarType.String {
+            if address.tmp?.symbol!.type == VarType.String {
                 loadX(2)
             } else {
                 loadX(1)
             }
         }
         next("FF")
+    }
+    
+    func flipZ(){
+        loadAccumulator(0)
+        jump(2)
+        loadAccumulator(1)
+        storeAccumulator(tempTable!.getTempByte())
+        loadX(0)
+        compareToX(tempTable!.getTempByte())
     }
     
     func breakSysCall(){
@@ -406,7 +428,12 @@ class CodeGen {
     
     func increment(){
         log("Incrementing byte.", type:.Message,  profile:.Verbose)
+        next("EE")
+    }
+    
+    func jump(bytes: Int){
         next("D0")
+        next(bytes.hex())
     }
     
     
@@ -443,7 +470,7 @@ class CodeGen {
         loadX(addressA!)
         compareToX(addressB!)
         if node.value.token!.str == "!=" {
-            
+            flipZ()
         }
     }
     
