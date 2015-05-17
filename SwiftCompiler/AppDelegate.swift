@@ -55,7 +55,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
     @IBOutlet weak var overlayText: NSTextField!
     @IBOutlet weak var runButton: NSToolbarItem!
     
-    @IBOutlet weak var outputSegmentedControl: NSSegmentedControl!
+    
+    @IBOutlet weak var outlineViewSource: OutlineViewSource!
+    @IBOutlet weak var outlineView: NSOutlineView!
+    @IBOutlet var machineCodeView: NSTextView!
     
     @IBOutlet weak var defaultSnippetsMenu: NSMenu!
     @IBOutlet weak var customSnippetsMenu: NSMenu!
@@ -87,12 +90,30 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
         Defaults.synchronize()
     }
     
-    func loadOutputView(){
-
+    func setupOutput(){
+        NSPasteboard.generalPasteboard().clearContents()
+        NSPasteboard.generalPasteboard().setString(outputHex!, forType: NSStringPboardType)
+        showOverlay("Compiler Succeeded")
+        outlineView.expandItem(outlineView.itemAtRow(0), expandChildren:true)
+        showMachineCode()
     }
     
-    @IBAction func setOutputView(sender: NSSegmentedControl) {
-        loadOutputView()
+    func showMachineCode(){
+        var str = ""
+        
+        var i = 0
+        for s in outputHex! {
+            if i % 16 == 0 {
+                str.extend("\n")
+            } else if i % 2 == 0 {
+                str.extend(" ")
+            }
+            str.extend(String(s))
+            i++
+        }
+        let font = NSFont(name: "Menlo", size: 12)
+        let attributedString = NSAttributedString(string: str, attributes: [NSForegroundColorAttributeName: NSColor.blackColor(), NSFontAttributeName: font!])
+        machineCodeView.textStorage?.appendAttributedString(attributedString)
     }
     
     @IBAction func setOutputProfile(sender: NSMenuItem) {
@@ -135,7 +156,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
             return
         }
         log("*Lex successful.*\n")
-        
+        outlineViewSource.setTokenStream(tokenStream!)
+        outlineView.reloadData()
         
         // -- PARSE ------------------------------------
         log("-----------------------------")
@@ -149,6 +171,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
             return
         }
         log("*Parse successful.*\n")
+        outlineViewSource.setCST(cst!)
+        outlineView.reloadData()
         
         
         // -- SEMANTIC ANALYSIS ------------------------
@@ -163,6 +187,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
             log("*Semantic Analysis failed. Exiting.*")
             return
         }
+        outlineViewSource.setAST(ast!)
+        outlineView.reloadData()
 
         
         // -- CODE GENERATION ------------------------
@@ -175,10 +201,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
             log("*Code Generation failed. Exiting.*")
             return
         }
-        NSPasteboard.generalPasteboard().clearContents()
-        NSPasteboard.generalPasteboard().setString(outputHex!, forType: NSStringPboardType)
-        showOverlay("Compiler Succeeded")
-        loadOutputView()
+        setupOutput()
     }
     
 
@@ -269,12 +292,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDelegate, NSOut
         parser   = Parser()
         analyzer = SemanticAnalysis()
         codeGen = CodeGen()
+        outlineViewSource.setup()
         
         textView.translatesAutoresizingMaskIntoConstraints = true
         textView.textContainerInset = NSMakeSize(0,1)
         textView.font = NSFont(name: "Menlo", size: 12.0)
         textView.automaticQuoteSubstitutionEnabled = false
-                
+        
         console.translatesAutoresizingMaskIntoConstraints = true
         console.font = NSFont(name: "Menlo", size: 12.0)
         
